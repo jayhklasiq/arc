@@ -23,7 +23,8 @@ function InstitutionSetupContent() {
     adminLastName: '',
     adminPhone: '',
     adminEmail: '',
-    sectors: []
+    sectors: [],
+    numberOfTeachers: ''
   });
   const [errors, setErrors] = useState({});
   const [isLoading, setIsLoading] = useState(false);
@@ -105,6 +106,14 @@ function InstitutionSetupContent() {
       newErrors.sectors = 'Please select at least one sector';
     }
     
+    if (!formData.numberOfTeachers) {
+      newErrors.numberOfTeachers = 'Number of teachers is required';
+    } else if (formData.numberOfTeachers < 1) {
+      newErrors.numberOfTeachers = 'Number of teachers must be at least 1';
+    } else if (formData.numberOfTeachers > 10000) {
+      newErrors.numberOfTeachers = 'Please enter a reasonable number of teachers';
+    }
+    
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -124,7 +133,7 @@ function InstitutionSetupContent() {
       
       // For demo purposes, just redirect to dashboard
       console.log('Institution setup data:', formData);
-      router.push('/dashboard');
+      router.push('/profile');
     } catch (error) {
       console.error('Setup error:', error);
     } finally {
@@ -242,6 +251,25 @@ function InstitutionSetupContent() {
                   error={errors.adminEmail}
                 />
               </div>
+            </div>
+
+            {/* Number of Teachers */}
+            <div className="border-b border-gray-200 pb-6">
+              <h2 className="text-lg font-semibold text-gray-900 mb-4">Staff Information</h2>
+              
+              <FormInput
+                id="numberOfTeachers"
+                name="numberOfTeachers"
+                type="number"
+                required
+                label="Number of Teachers"
+                placeholder="Enter current number of teachers"
+                min="1"
+                max="10000"
+                value={formData.numberOfTeachers}
+                onChange={handleChange}
+                error={errors.numberOfTeachers}
+              />
             </div>
 
             {/* Sectors Covered */}
