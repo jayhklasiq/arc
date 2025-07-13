@@ -48,7 +48,7 @@ function ProfileContent() {
             </div>
           </Link>
 
-          <div className="bg-white p-6 rounded-lg shadow-md">
+          <Link href="/students" className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
             <div className="flex items-center">
               <div className="w-12 h-12 bg-green-100 rounded-lg flex items-center justify-center mr-4">
                 <svg className="w-6 h-6 text-green-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -60,9 +60,9 @@ function ProfileContent() {
                 <p className="text-gray-600 text-sm">Manage student records</p>
               </div>
             </div>
-          </div>
+          </Link>
 
-          <div className="bg-white p-6 rounded-lg shadow-md">
+          <Link href="/teachers" className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
             <div className="flex items-center">
               <div className="w-12 h-12 bg-purple-100 rounded-lg flex items-center justify-center mr-4">
                 <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -74,7 +74,7 @@ function ProfileContent() {
                 <p className="text-gray-600 text-sm">Manage teaching staff</p>
               </div>
             </div>
-          </div>
+          </Link>
         </div>
 
         {/* Profile Information */}
