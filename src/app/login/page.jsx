@@ -14,6 +14,35 @@ export default function LoginPage() {
   const { login } = useAuth();
   const router = useRouter();
 
+  // Check if running in local development
+  const isLocalDev = process.env.NEXT_PUBLIC_IS_LOCAL_DEV === 'true';
+  const demoEmail = process.env.NEXT_PUBLIC_DEMO_EMAIL;
+  const demoPassword = process.env.NEXT_PUBLIC_DEMO_PASSWORD;
+
+  const handleDemoLogin = async () => {
+    if (!demoEmail || !demoPassword) {
+      setError('Demo credentials not configured');
+      return;
+    }
+
+    setError('');
+    setIsLoading(true);
+
+    try {
+      const result = await login(demoEmail, demoPassword);
+      
+      if (result.success) {
+        router.push('/dashboard');
+      } else {
+        setError(result.error || 'Demo login failed');
+      }
+    } catch (err) {
+      setError('Demo login error occurred');
+      console.error('Demo login error:', err);
+    } finally {
+      setIsLoading(false);
+    }
+  };
   const handleSubmit = async (e) => {
     e.preventDefault();
     setError('');
@@ -49,6 +78,22 @@ export default function LoginPage() {
             </Link>
           </p>
         </div>
+        
+        {/* Demo Login Button for Local Development */}
+        {isLocalDev && demoEmail && demoPassword && (
+          <div className="mb-6">
+            <button
+              onClick={handleDemoLogin}
+              disabled={isLoading}
+              className="w-full flex justify-center py-3 px-4 border-2 border-dashed border-blue-300 rounded-md text-sm font-medium text-blue-600 bg-blue-50 hover:bg-blue-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+            >
+              🚀 Quick Demo Login (Local Dev)
+            </button>
+            <p className="text-xs text-gray-500 text-center mt-2">
+              Using credentials from .env.local file
+            </p>
+          </div>
+        )}
         
         {error && (
           <div className="bg-red-50 border-l-4 border-red-400 p-4">
