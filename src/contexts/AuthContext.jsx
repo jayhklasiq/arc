@@ -34,6 +34,21 @@ export function AuthProvider({ children }) {
 
   const login = async (email, password) => {
     try {
+      // Demo mode - simulate successful login
+      const demoUser = {
+        id: '1',
+        name: 'Demo User',
+        email: email,
+        createdAt: new Date().toISOString()
+      };
+      
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      setUser(demoUser);
+      return { success: true };
+      
+      /* Original API call - commented out for demo
       const res = await fetch('http://localhost:5000/api/auth/login', {
         method: 'POST',
         headers: {
@@ -51,6 +66,7 @@ export function AuthProvider({ children }) {
 
       setUser(data.user);
       return { success: true };
+      */
     } catch (error) {
       return { success: false, error: error.message };
     }
@@ -58,6 +74,21 @@ export function AuthProvider({ children }) {
 
   const register = async (userData) => {
     try {
+      // Demo mode - simulate successful registration
+      const demoUser = {
+        id: Date.now().toString(),
+        name: userData.name,
+        email: userData.email,
+        createdAt: new Date().toISOString()
+      };
+      
+      // Simulate API delay
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      setUser(demoUser);
+      return { success: true };
+      
+      /* Original API call - commented out for demo
       const res = await fetch('http://localhost:5000/api/auth/register', {
         method: 'POST',
         headers: {
@@ -75,6 +106,7 @@ export function AuthProvider({ children }) {
 
       setUser(data.user);
       return { success: true };
+      */
     } catch (error) {
       return { success: false, error: error.message };
     }

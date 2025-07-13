@@ -81,7 +81,7 @@ export default function SignupPage() {
       });
       
       if (result.success) {
-        router.push('/dashboard');
+        router.push('/institution-setup');
       } else {
         setSubmitError(result.error || 'Registration failed. Please try again.');
       }
