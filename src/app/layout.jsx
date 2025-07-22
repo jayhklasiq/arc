@@ -53,6 +53,12 @@ function Header() {
 								<Link href="/dashboard" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
 									Dashboard
 								</Link>
+								<Link href="/students" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
+									Students
+								</Link>
+								<Link href="/teachers" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
+									Teachers
+								</Link>
 								<div className="relative group">
 									<button className="flex items-center text-sm font-medium text-gray-700 hover:text-blue-600 focus:outline-none">
 										<span className="mr-1">{user.name || "Account"}</span>
