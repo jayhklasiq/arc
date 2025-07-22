@@ -50,9 +50,6 @@ function Header() {
 
 						{user ? (
 							<>
-								<Link href="/dashboard" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
-									Dashboard
-								</Link>
 								<Link href="/students" className="text-gray-700 hover:text-blue-600 px-3 py-2 text-sm font-medium">
 									Students
 								</Link>
