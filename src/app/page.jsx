@@ -1,310 +1,312 @@
-'use client';
+"use client";
 
-import { useAuth } from '@/contexts/AuthContext';
-import { useRouter } from 'next/navigation';
-import { useEffect } from 'react';
-import Link from 'next/link';
+import Link from "next/link";
 
-export default function HomePage() {
-  const { user, loading } = useAuth();
-  const router = useRouter();
+export default function WelcomePage() {
+	return (
+		<div className="min-h-screen bg-[#F9FEFA]">
+			{/* Hero Section */}
+			<section className="py-20 px-6">
+				<div className="max-w-6xl mx-auto text-center">
+					<h1 className="text-5xl font-bold text-gray-900 mb-6">
+						Transform Your Classroom with
+						<span className="text-[#037764]"> Arc Education</span>
+					</h1>
+					<p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">The comprehensive platform that empowers teachers to create engaging lessons, track student progress, and build meaningful connections with their students.</p>
+					<div className="flex flex-col sm:flex-row gap-4 justify-center">
+						<Link href="#freeTrial" className="bg-[#037764] text-white px-8 py-3 rounded-lg hover:bg-[#025a4a] transition-colors font-medium text-lg">
+							Start Free Trial
+						</Link>
+						<Link href="#features" className="border border-[#037764] text-[#037764] px-8 py-3 rounded-lg hover:bg-[#037764]/5 transition-colors font-medium text-lg">
+							Learn More
+						</Link>
+					</div>
+				</div>
+			</section>
 
-  useEffect(() => {
-    if (!loading && user) {
-      // User is logged in, show dashboard
-      return;
-    } else if (!loading && !user) {
-      // User is not logged in, redirect to login
-      router.push('/login');
-    }
-  }, [user, loading, router]);
+			{/* Features Section */}
+			<section id="features" className="py-20 px-6 bg-white">
+				<div className="max-w-6xl mx-auto">
+					<div className="text-center mb-16">
+						<h2 className="text-3xl font-bold text-gray-900 mb-4">Everything You Need to Excel in Teaching</h2>
+						<p className="text-lg text-gray-600 max-w-2xl mx-auto">Arc Education provides all the tools and insights you need to create an engaging and effective learning environment for your students.</p>
+					</div>
 
-  if (loading) {
-    return (
-      <div className="min-h-screen flex items-center justify-center bg-[#F9FEFA]">
-        <div className="animate-spin rounded-full h-12 w-12 border-t-2 border-b-2 border-[#037764]"></div>
-      </div>
-    );
-  }
+					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+						{/* Lesson Planning */}
+						<div className="bg-[#F9FEFA] rounded-xl p-8 border border-gray-200">
+							<div className="w-12 h-12 bg-[#037764] rounded-lg flex items-center justify-center mb-6">
+								<svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+								</svg>
+							</div>
+							<h3 className="text-xl font-semibold text-gray-900 mb-4">Smart Lesson Planning</h3>
+							<p className="text-gray-600 mb-4">Create engaging lesson plans with our intuitive tools. Access curriculum standards, learning objectives, and assessment strategies all in one place.</p>
+							<ul className="text-sm text-gray-600 space-y-2">
+								<li>• Curriculum-aligned templates</li>
+								<li>• Interactive lesson builders</li>
+								<li>• Resource library access</li>
+							</ul>
+						</div>
 
-  if (!user) {
-    return null; // Will redirect to login
-  }
+						{/* Student Management */}
+						<div className="bg-[#F9FEFA] rounded-xl p-8 border border-gray-200">
+							<div className="w-12 h-12 bg-[#037764] rounded-lg flex items-center justify-center mb-6">
+								<svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
+								</svg>
+							</div>
+							<h3 className="text-xl font-semibold text-gray-900 mb-4">Student Progress Tracking</h3>
+							<p className="text-gray-600 mb-4">Monitor individual student progress with detailed analytics and insights. Identify learning gaps and celebrate achievements in real-time.</p>
+							<ul className="text-sm text-gray-600 space-y-2">
+								<li>• Individual progress dashboards</li>
+								<li>• Performance analytics</li>
+								<li>• Personalized feedback tools</li>
+							</ul>
+						</div>
 
-  return (
-    <div className="min-h-screen bg-[#F9FEFA]">
-      {/* Top Bar */}
-      <header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">
-        <div className="flex items-center justify-between px-6 py-4">
-          <div className="flex items-center space-x-4">
-            <div className="w-8 h-8 bg-[#037764] rounded-lg flex items-center justify-center">
-              <span className="text-white font-bold text-lg">A</span>
-            </div>
-            <h1 className="text-xl font-semibold text-gray-900">Arc Education</h1>
-          </div>
-          
-          <div className="flex items-center space-x-4">
-            {/* Notifications */}
-            <button className="relative p-2 text-gray-600 hover:text-[#037764] hover:bg-gray-100 rounded-lg transition-colors">
-              <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-5 5v-5zM10.07 2.82l3.12 3.12M7.05 5.84l3.12 3.12M4.03 8.86l3.12 3.12M1.01 11.88l3.12 3.12" />
-              </svg>
-              <span className="absolute -top-1 -right-1 w-3 h-3 bg-[#FED703] rounded-full"></span>
-            </button>
-            
-            {/* Quick Actions */}
-            <button className="bg-[#037764] text-white px-4 py-2 rounded-lg hover:bg-[#025a4a] transition-colors flex items-center space-x-2">
-              <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
-              </svg>
-              <span>Create New</span>
-            </button>
-            
-            {/* User Profile */}
-            <div className="flex items-center space-x-3">
-              <div className="w-8 h-8 bg-[#037764] rounded-full flex items-center justify-center">
-                <span className="text-white text-sm font-medium">
-                  {user?.name?.charAt(0)?.toUpperCase() || 'T'}
-                </span>
-              </div>
-              <div className="hidden md:block">
-                <p className="text-sm font-medium text-gray-900">{user?.name || 'Teacher'}</p>
-                <p className="text-xs text-gray-500">Class Teacher</p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </header>
+						{/* Assignment Management */}
+						<div className="bg-[#F9FEFA] rounded-xl p-8 border border-gray-200">
+							<div className="w-12 h-12 bg-[#037764] rounded-lg flex items-center justify-center mb-6">
+								<svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
+								</svg>
+							</div>
+							<h3 className="text-xl font-semibold text-gray-900 mb-4">Assignment Management</h3>
+							<p className="text-gray-600 mb-4">Create, distribute, and grade assignments efficiently. Set deadlines, provide feedback, and track completion rates seamlessly.</p>
+							<ul className="text-sm text-gray-600 space-y-2">
+								<li>• Digital assignment creation</li>
+								<li>• Automated grading tools</li>
+								<li>• Deadline management</li>
+							</ul>
+						</div>
 
-      <div className="flex">
-        {/* Sidebar */}
-        <aside className="w-64 bg-white shadow-sm min-h-screen border-r border-gray-200">
-          <nav className="p-6 space-y-2">
-            <Link href="/" className="flex items-center space-x-3 px-4 py-3 text-[#037764] bg-[#037764]/10 rounded-lg font-medium">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" />
-              </svg>
-              <span>Dashboard</span>
-            </Link>
-            
-            <Link href="/lesson-plans" className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:text-[#037764] hover:bg-gray-50 rounded-lg transition-colors">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-              </svg>
-              <span>Lesson Plans</span>
-            </Link>
-            
-            <Link href="/assignments" className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:text-[#037764] hover:bg-gray-50 rounded-lg transition-colors">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-              </svg>
-              <span>Assignments</span>
-            </Link>
-            
-            <Link href="/messages" className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:text-[#037764] hover:bg-gray-50 rounded-lg transition-colors">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
-              </svg>
-              <span>Messages</span>
-            </Link>
-            
-            <Link href="/settings" className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:text-[#037764] hover:bg-gray-50 rounded-lg transition-colors">
-              <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" />
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
-              </svg>
-              <span>Settings</span>
-            </Link>
-          </nav>
-        </aside>
+						{/* Communication */}
+						<div className="bg-[#F9FEFA] rounded-xl p-8 border border-gray-200">
+							<div className="w-12 h-12 bg-[#037764] rounded-lg flex items-center justify-center mb-6">
+								<svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 12h.01M12 12h.01M16 12h.01M21 12c0 4.418-4.03 8-9 8a9.863 9.863 0 01-4.255-.949L3 20l1.395-3.72C3.512 15.042 3 13.574 3 12c0-4.418 4.03-8 9-8s9 3.582 9 8z" />
+								</svg>
+							</div>
+							<h3 className="text-xl font-semibold text-gray-900 mb-4">Seamless Communication</h3>
+							<p className="text-gray-600 mb-4">Stay connected with students and parents through our integrated messaging system. Share updates, announcements, and progress reports instantly.</p>
+							<ul className="text-sm text-gray-600 space-y-2">
+								<li>• Direct messaging system</li>
+								<li>• Announcement broadcasts</li>
+								<li>• Parent communication portal</li>
+							</ul>
+						</div>
 
-        {/* Main Content */}
-        <main className="flex-1 p-6">
-          {/* Welcome Header */}
-          <div className="mb-8">
-            <h2 className="text-2xl font-bold text-gray-900 mb-2">
-              Good morning, {user?.name?.split(' ')[0] || 'Teacher'}! 👋
-            </h2>
-            <div className="flex items-center space-x-6 text-sm text-gray-600">
-              <span className="flex items-center space-x-2">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
-                </svg>
-                <span>28 students</span>
-              </span>
-              <span className="flex items-center space-x-2">
-                <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 0h6m-6 0l-2 2m8-2l2 2" />
-                </svg>
-                <span>Week 3 of 12</span>
-              </span>
-              <span className="flex items-center space-x-2">
-                <div className="w-2 h-2 bg-[#FED703] rounded-full"></div>
-                <span>5 assignments pending grading</span>
-              </span>
-            </div>
-          </div>
+						{/* Analytics */}
+						<div className="bg-[#F9FEFA] rounded-xl p-8 border border-gray-200">
+							<div className="w-12 h-12 bg-[#037764] rounded-lg flex items-center justify-center mb-6">
+								<svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+								</svg>
+							</div>
+							<h3 className="text-xl font-semibold text-gray-900 mb-4">Advanced Analytics</h3>
+							<p className="text-gray-600 mb-4">Gain insights into your teaching effectiveness with comprehensive analytics. Track class performance, identify trends, and make data-driven decisions.</p>
+							<ul className="text-sm text-gray-600 space-y-2">
+								<li>• Performance dashboards</li>
+								<li>• Trend analysis</li>
+								<li>• Custom reports</li>
+							</ul>
+						</div>
 
-          {/* Motivation Banner */}
-          <div className="bg-gradient-to-r from-[#037764] to-[#025a4a] rounded-xl p-6 mb-8 text-white">
-            <div className="flex items-center justify-between">
-              <div>
-                <h3 className="text-lg font-semibold mb-2">Weekly Teaching Tip</h3>
-                <p className="text-[#F9FEFA]/90">
-                  "Personalized learning isn't about technology—it's about understanding each student's unique journey and adapting accordingly."
-                </p>
-              </div>
-              <div className="hidden md:block">
-                <svg className="w-16 h-16 text-white/20" fill="currentColor" viewBox="0 0 24 24">
-                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                </svg>
-              </div>
-            </div>
-          </div>
+						{/* Collaboration */}
+						<div className="bg-[#F9FEFA] rounded-xl p-8 border border-gray-200">
+							<div className="w-12 h-12 bg-[#037764] rounded-lg flex items-center justify-center mb-6">
+								<svg className="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
+								</svg>
+							</div>
+							<h3 className="text-xl font-semibold text-gray-900 mb-4">Team Collaboration</h3>
+							<p className="text-gray-600 mb-4">Work together with other teachers and administrators. Share resources, collaborate on lesson plans, and coordinate across grade levels.</p>
+							<ul className="text-sm text-gray-600 space-y-2">
+								<li>• Resource sharing</li>
+								<li>• Team lesson planning</li>
+								<li>• Cross-grade coordination</li>
+							</ul>
+						</div>
+					</div>
+				</div>
+			</section>
 
-          {/* Dashboard Cards Grid */}
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
-            {/* Lesson Snapshot Card */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">This Week's Lessons</h3>
-                <svg className="w-5 h-5 text-[#037764]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-              </div>
-              
-              <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-                  <div>
-                    <p className="font-medium text-gray-900">Mathematics</p>
-                    <p className="text-sm text-gray-600">Fractions & Decimals</p>
-                  </div>
-                  <span className="px-2 py-1 bg-green-100 text-green-800 text-xs font-medium rounded-full">
-                    Completed
-                  </span>
-                </div>
-                
-                <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                  <div>
-                    <p className="font-medium text-gray-900">English</p>
-                    <p className="text-sm text-gray-600">Creative Writing</p>
-                  </div>
-                  <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
-                    In Progress
-                  </span>
-                </div>
-                
-                <div className="flex items-center justify-between p-3 bg-gray-50 rounded-lg">
-                  <div>
-                    <p className="font-medium text-gray-900">Science</p>
-                    <p className="text-sm text-gray-600">Plant Life Cycle</p>
-                  </div>
-                  <span className="px-2 py-1 bg-gray-100 text-gray-800 text-xs font-medium rounded-full">
-                    Draft
-                  </span>
-                </div>
-              </div>
-              
-              <button className="w-full mt-4 text-[#037764] hover:bg-[#037764]/5 py-2 rounded-lg transition-colors font-medium">
-                View All Lessons
-              </button>
-            </div>
+			{/* Benefits Section */}
+			<section className="py-20 px-6">
+				<div className="max-w-6xl mx-auto">
+					<div className="text-center mb-16">
+						<h2 className="text-3xl font-bold text-gray-900 mb-4">Why Teachers Choose Arc Education</h2>
+						<p className="text-lg text-gray-600 max-w-2xl mx-auto">Join thousands of educators who have transformed their teaching with our platform.</p>
+					</div>
 
-            {/* Assignments Panel */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Assignments</h3>
-                <svg className="w-5 h-5 text-[#037764]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" />
-                </svg>
-              </div>
-              
-              <div className="space-y-3">
-                <div className="flex items-center justify-between p-3 bg-red-50 rounded-lg">
-                  <div>
-                    <p className="font-medium text-gray-900">Math Quiz #3</p>
-                    <p className="text-sm text-gray-600">Due 2 days ago</p>
-                  </div>
-                  <span className="px-2 py-1 bg-red-100 text-red-800 text-xs font-medium rounded-full">
-                    Overdue
-                  </span>
-                </div>
-                
-                <div className="flex items-center justify-between p-3 bg-[#FED703]/10 rounded-lg">
-                  <div>
-                    <p className="font-medium text-gray-900">Essay: My Hero</p>
-                    <p className="text-sm text-gray-600">Due tomorrow</p>
-                  </div>
-                  <span className="px-2 py-1 bg-[#FED703]/20 text-yellow-800 text-xs font-medium rounded-full">
-                    Pending
-                  </span>
-                </div>
-                
-                <div className="flex items-center justify-between p-3 bg-blue-50 rounded-lg">
-                  <div>
-                    <p className="font-medium text-gray-900">Science Project</p>
-                    <p className="text-sm text-gray-600">Due next week</p>
-                  </div>
-                  <span className="px-2 py-1 bg-blue-100 text-blue-800 text-xs font-medium rounded-full">
-                    Upcoming
-                  </span>
-                </div>
-              </div>
-              
-              <div className="flex space-x-2 mt-4">
-                <button className="flex-1 bg-[#037764] text-white py-2 rounded-lg hover:bg-[#025a4a] transition-colors font-medium">
-                  Grade Now
-                </button>
-                <button className="flex-1 border border-[#037764] text-[#037764] py-2 rounded-lg hover:bg-[#037764]/5 transition-colors font-medium">
-                  Send Reminders
-                </button>
-              </div>
-            </div>
+					<div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+						<div>
+							<div className="space-y-6">
+								<div className="flex items-start space-x-4">
+									<div className="w-8 h-8 bg-[#037764] rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+										<svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+										</svg>
+									</div>
+									<div>
+										<h3 className="text-lg font-semibold text-gray-900 mb-2">Save Time</h3>
+										<p className="text-gray-600">Reduce administrative tasks by up to 40% with automated grading and streamlined workflows.</p>
+									</div>
+								</div>
 
-            {/* Student Progress Card */}
-            <div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-              <div className="flex items-center justify-between mb-4">
-                <h3 className="text-lg font-semibold text-gray-900">Student Progress</h3>
-                <svg className="w-5 h-5 text-[#037764]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-                </svg>
-              </div>
-              
-              <div className="space-y-4">
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Excelling</span>
-                  <span className="text-sm font-medium text-green-600">8 students</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div className="bg-green-500 h-2 rounded-full" style={{ width: '29%' }}></div>
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">On Track</span>
-                  <span className="text-sm font-medium text-blue-600">15 students</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div className="bg-blue-500 h-2 rounded-full" style={{ width: '54%' }}></div>
-                </div>
-                
-                <div className="flex items-center justify-between">
-                  <span className="text-sm text-gray-600">Needs Support</span>
-                  <span className="text-sm font-medium text-[#FED703]">5 students</span>
-                </div>
-                <div className="w-full bg-gray-200 rounded-full h-2">
-                  <div className="bg-[#FED703] h-2 rounded-full" style={{ width: '18%' }}></div>
-                </div>
-              </div>
-              
-              <button className="w-full mt-4 text-[#037764] hover:bg-[#037764]/5 py-2 rounded-lg transition-colors font-medium">
-                View Detailed Reports
-              </button>
-            </div>
-          </div>
+								<div className="flex items-start space-x-4">
+									<div className="w-8 h-8 bg-[#037764] rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+										<svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+										</svg>
+									</div>
+									<div>
+										<h3 className="text-lg font-semibold text-gray-900 mb-2">Improve Outcomes</h3>
+										<p className="text-gray-600">Data-driven insights help you identify and address learning gaps more effectively.</p>
+									</div>
+								</div>
 
-          {/* Quick Actions Section */}
-        </main>
-      </div>
-    </div>
-  );
+								<div className="flex items-start space-x-4">
+									<div className="w-8 h-8 bg-[#037764] rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+										<svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+										</svg>
+									</div>
+									<div>
+										<h3 className="text-lg font-semibold text-gray-900 mb-2">Engage Students</h3>
+										<p className="text-gray-600">Interactive tools and personalized learning paths keep students motivated and engaged.</p>
+									</div>
+								</div>
+
+								<div className="flex items-start space-x-4">
+									<div className="w-8 h-8 bg-[#037764] rounded-full flex items-center justify-center flex-shrink-0 mt-1">
+										<svg className="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M5 13l4 4L19 7" />
+										</svg>
+									</div>
+									<div>
+										<h3 className="text-lg font-semibold text-gray-900 mb-2">Stay Connected</h3>
+										<p className="text-gray-600">Build stronger relationships with students and parents through seamless communication.</p>
+									</div>
+								</div>
+							</div>
+						</div>
+
+						<div className="bg-white rounded-xl p-8 shadow-lg border border-gray-200">
+							<h3 className="text-xl font-semibold text-gray-900 mb-6 text-center">Ready to Get Started?</h3>
+							<div className="space-y-4" id="freeTrial">
+								<Link href="/signup" className="w-full bg-[#037764] text-white py-3 rounded-lg hover:bg-[#025a4a] transition-colors font-medium text-center block">
+									Create Free Account
+								</Link>
+								<Link href="/login" className="w-full border border-[#037764] text-[#037764] py-3 rounded-lg hover:bg-[#037764]/5 transition-colors font-medium text-center block">
+									Sign In
+								</Link>
+							</div>
+							<p className="text-sm text-gray-500 text-center mt-4">No credit card required • 30-day free trial</p>
+						</div>
+					</div>
+				</div>
+			</section>
+
+			{/* Footer */}
+			{/* <footer className="bg-gray-900 text-white py-12 px-6">
+				<div className="max-w-6xl mx-auto">
+					<div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+						<div>
+							<div className="flex items-center space-x-2 mb-4">
+								<div className="w-8 h-8 bg-[#037764] rounded-lg flex items-center justify-center">
+									<span className="text-white font-bold text-lg">A</span>
+								</div>
+								<span className="text-xl font-semibold">Arc Education</span>
+							</div>
+							<p className="text-gray-400">Empowering teachers to create better learning experiences for every student.</p>
+						</div>
+
+						<div>
+							<h4 className="font-semibold mb-4">Product</h4>
+							<ul className="space-y-2 text-gray-400">
+								<li>
+									<Link href="#" className="hover:text-white transition-colors">
+										Features
+									</Link>
+								</li>
+								<li>
+									<Link href="#" className="hover:text-white transition-colors">
+										Pricing
+									</Link>
+								</li>
+								<li>
+									<Link href="#" className="hover:text-white transition-colors">
+										Integrations
+									</Link>
+								</li>
+								<li>
+									<Link href="#" className="hover:text-white transition-colors">
+										API
+									</Link>
+								</li>
+							</ul>
+						</div>
+
+						<div>
+							<h4 className="font-semibold mb-4">Support</h4>
+							<ul className="space-y-2 text-gray-400">
+								<li>
+									<Link href="#" className="hover:text-white transition-colors">
+										Help Center
+									</Link>
+								</li>
+								<li>
+									<Link href="#" className="hover:text-white transition-colors">
+										Contact Us
+									</Link>
+								</li>
+								<li>
+									<Link href="#" className="hover:text-white transition-colors">
+										Training
+									</Link>
+								</li>
+								<li>
+									<Link href="#" className="hover:text-white transition-colors">
+										Community
+									</Link>
+								</li>
+							</ul>
+						</div>
+
+						<div>
+							<h4 className="font-semibold mb-4">Company</h4>
+							<ul className="space-y-2 text-gray-400">
+								<li>
+									<Link href="#" className="hover:text-white transition-colors">
+										About
+									</Link>
+								</li>
+								<li>
+									<Link href="#" className="hover:text-white transition-colors">
+										Blog
+									</Link>
+								</li>
+								<li>
+									<Link href="#" className="hover:text-white transition-colors">
+										Careers
+									</Link>
+								</li>
+								<li>
+									<Link href="#" className="hover:text-white transition-colors">
+										Privacy
+									</Link>
+								</li>
+							</ul>
+						</div>
+					</div>
+
+					<div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+						<p>&copy; 2024 Arc Education. All rights reserved.</p>
+					</div>
+				</div>
+			</footer> */}
+		</div>
+	);
 }
