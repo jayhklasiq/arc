@@ -46,6 +46,29 @@ function Header() {
 
 	const userRoleInfo = getUserRoleInfo();
 
+	// Helper function to get user role and display info
+	const getUserRoleInfo = () => {
+		// This would typically come from user data, but for now we'll infer from the current path
+		// In a real app, you'd store the user role in the user object
+		if (!user) return { role: null, title: "", icon: "U" };
+
+		// For demo purposes, we'll use the first letter of the name to determine role
+		// In production, this should come from the user's actual role data
+		const firstLetter = user.name?.charAt(0)?.toUpperCase() || "U";
+
+		if (firstLetter === "A" || user.email?.includes("admin")) {
+			return { role: "admin", title: "School Administrator", icon: "A" };
+		} else if (firstLetter === "T" || user.email?.includes("teacher")) {
+			return { role: "teacher", title: "Class Teacher", icon: "T" };
+		} else if (firstLetter === "S" || user.email?.includes("student")) {
+			return { role: "student", title: "Grade 8 Student", icon: "S" };
+		} else {
+			return { role: "user", title: "User", icon: firstLetter };
+		}
+	};
+
+	const userRoleInfo = getUserRoleInfo();
+
 	if (loading) {
 		return (
 			<header className="bg-white shadow-sm border-b border-gray-200 sticky top-0 z-40">

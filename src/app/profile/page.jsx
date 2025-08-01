@@ -26,6 +26,25 @@ function ProfileContent() {
 
 	const userRoleInfo = getUserRoleInfo();
 
+	// Helper function to get user role and display info (same logic as layout.jsx)
+	const getUserRoleInfo = () => {
+		if (!user) return { role: null, title: "", icon: "U" };
+
+		const firstLetter = user.name?.charAt(0)?.toUpperCase() || "U";
+
+		if (firstLetter === "A" || user.email?.includes("admin")) {
+			return { role: "admin", title: "School Administrator", icon: "A" };
+		} else if (firstLetter === "T" || user.email?.includes("teacher")) {
+			return { role: "teacher", title: "Class Teacher", icon: "T" };
+		} else if (firstLetter === "S" || user.email?.includes("student")) {
+			return { role: "student", title: "Grade 8 Student", icon: "S" };
+		} else {
+			return { role: "user", title: "User", icon: firstLetter };
+		}
+	};
+
+	const userRoleInfo = getUserRoleInfo();
+
 	return (
 		<div className="min-h-screen bg-gray-50 py-8">
 			<div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8">
@@ -40,6 +59,11 @@ function ProfileContent() {
 								<h1 className="text-3xl font-bold text-white">{user?.name || "User"}</h1>
 								<p className="text-[#F9FEFA]/90 mt-1">{user?.email}</p>
 								<div className="mt-2">
+									<span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+										{userRoleInfo.title}
+									</span>
+								</div>
+								<div className="mt-2">
 									<span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">{userRoleInfo.title}</span>
 								</div>
 							</div>
@@ -49,6 +73,7 @@ function ProfileContent() {
 
 				{/* Quick Actions - Role-based */}
 				<div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
+					{/* Dashboard card - show for all users */}
 					{/* Dashboard card - show for all users */}
 					<Link href="/dashboard" className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
 						<div className="flex items-center">
@@ -77,10 +102,16 @@ function ProfileContent() {
 									<h3 className="text-lg font-semibold text-gray-900">Students</h3>
 									<p className="text-gray-600 text-sm">Manage student records</p>
 								</div>
+									<h3 className="text-lg font-semibold text-gray-900">Students</h3>
+									<p className="text-gray-600 text-sm">Manage student records</p>
+								</div>
 							</div>
 						</Link>
 					)}
 
+						</Link>
+					)}
+						<Link href="/teachers" className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
 					{/* Teachers card - show for admin only */}
 					{userRoleInfo.role === "admin" && (
 						<Link href="/teachers" className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
