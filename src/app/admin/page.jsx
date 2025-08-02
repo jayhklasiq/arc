@@ -93,12 +93,12 @@ export default function AdminDashboard() {
 					<div className="mb-8">
 						<h2 className="text-2xl font-bold text-gray-900 mb-2">Good morning, {user?.name?.split(" ")[0] || "Admin"}! 👋</h2>
 						<div className="flex items-center space-x-6 text-sm text-gray-600">
-							<span className="flex items-center space-x-2">
+							{/* <span className="flex items-center space-x-2">
 								<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h1a1 1 0 011 1v5m-4 0h4" />
 								</svg>
 								<span>5 schools</span>
-							</span>
+							</span> */}
 							<span className="flex items-center space-x-2">
 								<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
@@ -139,14 +139,6 @@ export default function AdminDashboard() {
 							</div>
 
 							<div className="space-y-3">
-								<div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-									<div>
-										<p className="font-medium text-gray-900">Active Schools</p>
-										<p className="text-sm text-gray-600">Currently operational</p>
-									</div>
-									<span className="text-2xl font-bold text-green-600">5</span>
-								</div>
-
 								<div className="flex items-center justify-between p-3 bg-[#037764]/10 rounded-lg">
 									<div>
 										<p className="font-medium text-gray-900">Total Students</p>
@@ -215,14 +207,6 @@ export default function AdminDashboard() {
 							</div>
 
 							<div className="space-y-4">
-								<div className="flex items-center justify-between">
-									<span className="text-sm text-gray-600">New school registrations</span>
-									<span className="text-sm font-medium text-green-600">2 this week</span>
-								</div>
-								<div className="w-full bg-gray-200 rounded-full h-2">
-									<div className="bg-green-500 h-2 rounded-full" style={{ width: "40%" }}></div>
-								</div>
-
 								<div className="flex items-center justify-between">
 									<span className="text-sm text-gray-600">Teacher onboarding</span>
 									<span className="text-sm font-medium text-[#037764]">8 completed</span>

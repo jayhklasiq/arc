@@ -8,11 +8,46 @@ function ProfileContent() {
 	const { user } = useAuth();
 
 	// Helper function to get user role and display info (same logic as layout.jsx)
+	// const getUserRoleInfo = () => {
+	// 	if (!user) return { role: null, title: "", icon: "U" };
+
+	// 	const firstLetter = user.name?.charAt(0)?.toUpperCase() || "U";
+
+	// 	if (firstLetter === "A" || user.email?.includes("admin")) {
+	// 		return { role: "admin", title: "School Administrator", icon: "A" };
+	// 	} else if (firstLetter === "T" || user.email?.includes("teacher")) {
+	// 		return { role: "teacher", title: "Class Teacher", icon: "T" };
+	// 	} else if (firstLetter === "S" || user.email?.includes("student")) {
+	// 		return { role: "student", title: "Grade 8 Student", icon: "S" };
+	// 	} else {
+	// 		return { role: "user", title: "User", icon: firstLetter };
+	// 	}
+	// };
+
+	// Helper function to get user role based on login context
 	const getUserRoleInfo = () => {
 		if (!user) return { role: null, title: "", icon: "U" };
 
-		const firstLetter = user.name?.charAt(0)?.toUpperCase() || "U";
+		// Determine role based on login context - this should come from the auth context
+		// For now, we'll use a simple approach based on the current implementation
+		// In a real app, this would be stored in the user object during login
 
+		// Check if user has a role property (set during login)
+		if (user.role) {
+			switch (user.role) {
+				case "admin":
+					return { role: "admin", title: "School Administrator", icon: "A" };
+				case "teacher":
+					return { role: "teacher", title: "Class Teacher", icon: "T" };
+				case "student":
+					return { role: "student", title: "Grade 8 Student", icon: "S" };
+				default:
+					return { role: "user", title: "User", icon: "U" };
+			}
+		}
+
+		// Fallback to name-based detection for demo purposes
+		const firstLetter = user.name?.charAt(0)?.toUpperCase() || "U";
 		if (firstLetter === "A" || user.email?.includes("admin")) {
 			return { role: "admin", title: "School Administrator", icon: "A" };
 		} else if (firstLetter === "T" || user.email?.includes("teacher")) {
@@ -25,6 +60,20 @@ function ProfileContent() {
 	};
 
 	const userRoleInfo = getUserRoleInfo();
+
+	// Helper function to get the correct dashboard route based on user role
+	const getDashboardRoute = () => {
+		switch (userRoleInfo.role) {
+			case "admin":
+				return "/admin";
+			case "teacher":
+				return "/teacher";
+			case "student":
+				return "/student";
+			default:
+				return "/dashboard"; // fallback
+		}
+	};
 
 	return (
 		<div className="min-h-screen bg-gray-50 py-8">
@@ -40,9 +89,7 @@ function ProfileContent() {
 								<h1 className="text-3xl font-bold text-white">{user?.name || "User"}</h1>
 								<p className="text-[#F9FEFA]/90 mt-1">{user?.email}</p>
 								<div className="mt-2">
-									<span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
-										{userRoleInfo.title}
-									</span>
+									<span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">{userRoleInfo.title}</span>
 								</div>
 							</div>
 						</div>
@@ -52,7 +99,7 @@ function ProfileContent() {
 				{/* Quick Actions - Role-based */}
 				<div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
 					{/* Dashboard card - show for all users */}
-					<Link href="/dashboard" className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
+					<Link href={getDashboardRoute()} className="bg-white p-6 rounded-lg shadow-md hover:shadow-lg transition-shadow">
 						<div className="flex items-center">
 							<div className="w-12 h-12 bg-[#037764]/20 rounded-lg flex items-center justify-center mr-4">
 								<svg className="w-6 h-6 text-[#037764]" fill="none" stroke="currentColor" viewBox="0 0 24 24">

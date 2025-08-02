@@ -23,39 +23,30 @@ const geistMono = Geist_Mono({
 function Header() {
 	const { user, logout, loading } = useAuth();
 
-	// Helper function to get user role and display info
+	// Helper function to get user role based on login context
 	const getUserRoleInfo = () => {
-		// This would typically come from user data, but for now we'll infer from the current path
-		// In a real app, you'd store the user role in the user object
 		if (!user) return { role: null, title: "", icon: "U" };
 
-		// For demo purposes, we'll use the first letter of the name to determine role
-		// In production, this should come from the user's actual role data
-		const firstLetter = user.name?.charAt(0)?.toUpperCase() || "U";
+		// Determine role based on login context - this should come from the auth context
+		// For now, we'll use a simple approach based on the current implementation
+		// In a real app, this would be stored in the user object during login
 
-		if (firstLetter === "A" || user.email?.includes("admin")) {
-			return { role: "admin", title: "School Administrator", icon: "A" };
-		} else if (firstLetter === "T" || user.email?.includes("teacher")) {
-			return { role: "teacher", title: "Class Teacher", icon: "T" };
-		} else if (firstLetter === "S" || user.email?.includes("student")) {
-			return { role: "student", title: "Grade 8 Student", icon: "S" };
-		} else {
-			return { role: "user", title: "User", icon: firstLetter };
+		// Check if user has a role property (set during login)
+		if (user.role) {
+			switch (user.role) {
+				case "admin":
+					return { role: "admin", title: "School Administrator", icon: "A" };
+				case "teacher":
+					return { role: "teacher", title: "Class Teacher", icon: "T" };
+				case "student":
+					return { role: "student", title: "Grade 8 Student", icon: "S" };
+				default:
+					return { role: "user", title: "User", icon: "U" };
+			}
 		}
-	};
 
-	const userRoleInfo = getUserRoleInfo();
-
-	// Helper function to get user role and display info
-	const getUserRoleInfo = () => {
-		// This would typically come from user data, but for now we'll infer from the current path
-		// In a real app, you'd store the user role in the user object
-		if (!user) return { role: null, title: "", icon: "U" };
-
-		// For demo purposes, we'll use the first letter of the name to determine role
-		// In production, this should come from the user's actual role data
+		// Fallback to name-based detection for demo purposes
 		const firstLetter = user.name?.charAt(0)?.toUpperCase() || "U";
-
 		if (firstLetter === "A" || user.email?.includes("admin")) {
 			return { role: "admin", title: "School Administrator", icon: "A" };
 		} else if (firstLetter === "T" || user.email?.includes("teacher")) {
@@ -101,35 +92,6 @@ function Header() {
 					<nav className="flex items-center space-x-4">
 						{user ? (
 							<>
-								{/* Navigation Links - only show for logged in users */}
-								<Link href="/" className="text-gray-700 hover:text-[#037764] px-3 py-2 text-sm font-medium">
-									Home
-								</Link>
-								<Link href="/students" className="text-gray-700 hover:text-[#037764] px-3 py-2 text-sm font-medium">
-									Students
-								</Link>
-								<Link href="/teachers" className="text-gray-700 hover:text-[#037764] px-3 py-2 text-sm font-medium">
-									Teachers
-								</Link>
-
-								{/* Notifications */}
-								<button className="relative p-2 text-gray-600 hover:text-[#037764] hover:bg-gray-100 rounded-lg transition-colors">
-									<svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-										<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 17h5l-5 5v-5zM10.07 2.82l3.12 3.12M7.05 5.84l3.12 3.12M4.03 8.86l3.12 3.12M1.01 11.88l3.12 3.12" />
-									</svg>
-									<span className="absolute -top-1 -right-1 w-3 h-3 bg-[#FED703] rounded-full"></span>
-								</button>
-
-								{/* Quick Actions - only show for admin and teacher */}
-								{(userRoleInfo.role === "admin" || userRoleInfo.role === "teacher") && (
-									<button className="bg-[#037764] text-white px-4 py-2 rounded-lg hover:bg-[#025a4a] transition-colors flex items-center space-x-2">
-										<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4v16m8-8H4" />
-										</svg>
-										<span>Create New</span>
-									</button>
-								)}
-
 								{/* User Profile */}
 								<div className="flex items-center space-x-3">
 									<div className="w-8 h-8 bg-[#037764] rounded-full flex items-center justify-center">
@@ -137,7 +99,7 @@ function Header() {
 									</div>
 									<div className="hidden md:block">
 										<p className="text-sm font-medium text-gray-900">{user?.name || "User"}</p>
-										<p className="text-xs text-gray-500">{userRoleInfo.title}</p>
+										<p className="text-xs text-gray-500">{userRoleInfo.role?.charAt(0)?.toUpperCase() + userRoleInfo.role?.slice(1) || "User"}</p>
 									</div>
 
 									{/* User Dropdown */}
