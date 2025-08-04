@@ -1,0 +1,270 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useAuth } from "@/contexts/AuthContext";
+import { useRouter, useSearchParams } from "next/navigation";
+import Sidebar from "@/components/Sidebar";
+import FormInput from "@/components/FormInput";
+
+export default function EditLessonPlanPage() {
+	const { user, loading } = useAuth();
+	const router = useRouter();
+	const searchParams = useSearchParams();
+	const selectedClass = searchParams.get("class");
+	const planId = searchParams.get("plan");
+
+	const [formData, setFormData] = useState({
+		subject: "",
+		teacher: "",
+		academicYear: "",
+		term: "",
+		description: "",
+		objectives: "",
+		topics: "",
+		assessment: "",
+		resources: "",
+		notes: "",
+	});
+
+	const [selectedSubject, setSelectedSubject] = useState("");
+	const [isLoading, setIsLoading] = useState(true);
+
+	// Check if user is admin
+	useEffect(() => {
+		if (!loading && (!user || user.role !== "admin")) {
+			router.push("/login");
+		}
+	}, [user, loading, router]);
+
+	// Load lesson plan data
+	useEffect(() => {
+		if (selectedClass && planId) {
+			// Simulate loading lesson plan data
+			setTimeout(() => {
+				const mockPlan = generateMockLessonPlan(selectedClass, planId);
+				setFormData(mockPlan);
+				setSelectedSubject(mockPlan.subject);
+				setIsLoading(false);
+			}, 500);
+		}
+	}, [selectedClass, planId]);
+
+	if (loading || isLoading) {
+		return (
+			<div className="min-h-screen bg-[#F9FEFA] flex items-center justify-center">
+				<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#037764]"></div>
+			</div>
+		);
+	}
+
+	if (!user || user.role !== "admin") {
+		return null;
+	}
+
+	// Generate mock lesson plan data
+	function generateMockLessonPlan(className, planId) {
+		const subjects = getSubjectsForClass(className);
+		const subject = subjects[parseInt(planId) - 1] || subjects[0];
+
+		return {
+			subject,
+			teacher: `Teacher ${planId}`,
+			academicYear: "2024/2025",
+			term: ["First Term", "Second Term", "Third Term"][parseInt(planId) % 3],
+			description: `This course provides a comprehensive introduction to ${subject} for ${className} students. The curriculum is designed to build foundational knowledge and develop critical thinking skills.`,
+			objectives: `Students will develop a strong foundation in ${subject} concepts and practical applications. They will learn to analyze problems, apply theoretical knowledge, and develop practical skills.`,
+			topics: `Unit 1: Introduction to ${subject}\n- Basic concepts and terminology\n- Historical background and context\n- Current applications and relevance\n\nUnit 2: Core Concepts\n- Fundamental principles and theories\n- Key methodologies and approaches\n- Problem-solving strategies\n\nUnit 3: Practical Applications\n- Real-world case studies\n- Hands-on exercises and projects\n- Industry best practices\n\nUnit 4: Assessment and Review\n- Comprehensive review of all topics\n- Practice examinations\n- Final project presentations`,
+			assessment: "Continuous assessment through assignments (30%), quizzes and tests (25%), practical projects (25%), and final examination (20%). Regular feedback will be provided to help students track their progress.",
+			resources: "Primary textbook: 'Introduction to " + subject + "', Online learning platform access, Supplementary reading materials, Practical laboratory equipment, Digital resources and simulations",
+			notes: "Additional support materials and tutoring sessions are available upon request. Students are encouraged to participate in study groups and seek clarification when needed.",
+		};
+	}
+
+	// Define subjects for the selected class
+	const getSubjectsForClass = (className) => {
+		if (className?.startsWith("Primary")) {
+			return ["English Language", "Mathematics", "Integrated Science", "Social Studies", "Religious and Moral Education", "Creative Arts", "Physical Education", "French"];
+		} else if (className?.startsWith("JHS")) {
+			return ["English Language", "Mathematics", "Integrated Science", "Social Studies", "Religious and Moral Education", "Creative Arts and Design", "Physical Education", "French", "Computing", "Career Technology"];
+		} else if (className?.startsWith("SHS")) {
+			return ["Core Mathematics", "English Language", "Integrated Science", "Social Studies", "Economics", "Literature", "French", "Elective Mathematics", "Biology", "Chemistry", "Physics", "Government", "History", "Geography", "Religious Studies", "Food and Nutrition", "Management in Living", "Textiles", "Graphic Design", "Picture Making", "Ceramics", "Leatherwork", "Basketry", "Jewelry", "Music", "Dance", "Theatre Arts"];
+		}
+		return [];
+	};
+
+	const subjects = getSubjectsForClass(selectedClass);
+
+	const handleInputChange = (e) => {
+		const { name, value } = e.target;
+		setFormData((prev) => ({
+			...prev,
+			[name]: value,
+		}));
+	};
+
+	const handleSubjectChange = (e) => {
+		setSelectedSubject(e.target.value);
+		setFormData((prev) => ({
+			...prev,
+			subject: e.target.value,
+		}));
+	};
+
+	const handleSubmit = (e) => {
+		e.preventDefault();
+		// Here you would typically update the lesson plan in your backend
+		console.log("Updating lesson plan:", { class: selectedClass, planId, ...formData });
+
+		// Show success message and redirect
+		alert("Lesson plan updated successfully!");
+		router.push("/lesson-plans");
+	};
+
+	const handleCancel = () => {
+		router.push("/lesson-plans");
+	};
+
+	const handleDelete = () => {
+		if (confirm("Are you sure you want to delete this lesson plan? This action cannot be undone.")) {
+			// Here you would typically delete the lesson plan from your backend
+			console.log("Deleting lesson plan:", { class: selectedClass, planId });
+
+			alert("Lesson plan deleted successfully!");
+			router.push("/lesson-plans");
+		}
+	};
+
+	if (!selectedClass || !planId) {
+		return (
+			<div className="min-h-screen bg-[#F9FEFA]">
+				<Sidebar userRole="admin" />
+				<main className="p-6">
+					<div className="text-center">
+						<h1 className="text-2xl font-bold text-gray-900 mb-4">Invalid Request</h1>
+						<p className="text-gray-600 mb-6">Please select a class and lesson plan from the lesson plans page.</p>
+						<button onClick={() => router.push("/lesson-plans")} className="bg-[#037764] text-white px-6 py-2 rounded-lg hover:bg-[#025a4a] transition-colors">
+							Back to Lesson Plans
+						</button>
+					</div>
+				</main>
+			</div>
+		);
+	}
+
+	return (
+		<div className="min-h-screen bg-[#F9FEFA]">
+			<Sidebar userRole="admin" />
+
+			{/* Main Content */}
+			<main className="p-6">
+				{/* Header */}
+				<div className="mb-8">
+					<div className="flex items-center justify-between">
+						<div>
+							<h1 className="text-3xl font-bold text-gray-900 mb-2">Edit Lesson Plan</h1>
+							<p className="text-gray-600">Modify syllabus for {selectedClass}</p>
+						</div>
+						<button onClick={handleCancel} className="text-gray-600 hover:text-gray-800 flex items-center space-x-2">
+							<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
+							</svg>
+							<span>Back to Lesson Plans</span>
+						</button>
+					</div>
+				</div>
+
+				{/* Form */}
+				<div className="bg-white rounded-lg shadow-sm border border-gray-200 p-6">
+					<form onSubmit={handleSubmit} className="space-y-6">
+						{/* Class and Subject Selection */}
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+							<div>
+								<label className="block text-sm font-medium text-gray-700 mb-2">Class</label>
+								<input type="text" value={selectedClass} disabled className="w-full px-3 py-2 border border-gray-300 rounded-md bg-gray-50 text-gray-500" />
+							</div>
+							<div>
+								<label className="block text-sm font-medium text-gray-700 mb-2">Subject *</label>
+								<select name="subject" value={selectedSubject} onChange={handleSubjectChange} required className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#037764] focus:border-[#037764]">
+									<option value="">Select a subject</option>
+									{subjects.map((subject) => (
+										<option key={subject} value={subject}>
+											{subject}
+										</option>
+									))}
+								</select>
+							</div>
+						</div>
+
+						{/* Teacher and Academic Year */}
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+							<FormInput label="Assigned Teacher *" name="teacher" value={formData.teacher} onChange={handleInputChange} required placeholder="Enter teacher's name" />
+							<FormInput label="Academic Year *" name="academicYear" value={formData.academicYear} onChange={handleInputChange} required placeholder="e.g., 2024/2025" />
+						</div>
+
+						{/* Term */}
+						<div>
+							<label className="block text-sm font-medium text-gray-700 mb-2">Term *</label>
+							<select name="term" value={formData.term} onChange={handleInputChange} required className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#037764] focus:border-[#037764]">
+								<option value="">Select a term</option>
+								<option value="First Term">First Term</option>
+								<option value="Second Term">Second Term</option>
+								<option value="Third Term">Third Term</option>
+							</select>
+						</div>
+
+						{/* Description */}
+						<div>
+							<label className="block text-sm font-medium text-gray-700 mb-2">Course Description *</label>
+							<textarea name="description" value={formData.description} onChange={handleInputChange} required rows={4} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#037764] focus:border-[#037764]" placeholder="Provide a brief description of the course content and goals" />
+						</div>
+
+						{/* Learning Objectives */}
+						<div>
+							<label className="block text-sm font-medium text-gray-700 mb-2">Learning Objectives *</label>
+							<textarea name="objectives" value={formData.objectives} onChange={handleInputChange} required rows={4} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#037764] focus:border-[#037764]" placeholder="List the key learning objectives for this course" />
+						</div>
+
+						{/* Topics and Content */}
+						<div>
+							<label className="block text-sm font-medium text-gray-700 mb-2">Topics and Content *</label>
+							<textarea name="topics" value={formData.topics} onChange={handleInputChange} required rows={6} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#037764] focus:border-[#037764]" placeholder="Outline the main topics, units, and content to be covered" />
+						</div>
+
+						{/* Assessment Methods */}
+						<div>
+							<label className="block text-sm font-medium text-gray-700 mb-2">Assessment Methods *</label>
+							<textarea name="assessment" value={formData.assessment} onChange={handleInputChange} required rows={3} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#037764] focus:border-[#037764]" placeholder="Describe how students will be assessed (exams, projects, assignments, etc.)" />
+						</div>
+
+						{/* Resources and Materials */}
+						<div>
+							<label className="block text-sm font-medium text-gray-700 mb-2">Resources and Materials</label>
+							<textarea name="resources" value={formData.resources} onChange={handleInputChange} rows={3} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#037764] focus:border-[#037764]" placeholder="List textbooks, online resources, and other materials needed" />
+						</div>
+
+						{/* Additional Notes */}
+						<div>
+							<label className="block text-sm font-medium text-gray-700 mb-2">Additional Notes</label>
+							<textarea name="notes" value={formData.notes} onChange={handleInputChange} rows={3} className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-[#037764] focus:border-[#037764]" placeholder="Any additional notes or special instructions" />
+						</div>
+
+						{/* Form Actions */}
+						<div className="flex justify-between pt-6 border-t border-gray-200">
+							<button type="button" onClick={handleDelete} className="px-6 py-2 bg-red-600 text-white rounded-md hover:bg-red-700 transition-colors">
+								Delete Lesson Plan
+							</button>
+							<div className="flex space-x-4">
+								<button type="button" onClick={handleCancel} className="px-6 py-2 border border-gray-300 rounded-md text-gray-700 hover:bg-gray-50 transition-colors">
+									Cancel
+								</button>
+								<button type="submit" className="px-6 py-2 bg-[#037764] text-white rounded-md hover:bg-[#025a4a] transition-colors">
+									Update Lesson Plan
+								</button>
+							</div>
+						</div>
+					</form>
+				</div>
+			</main>
+		</div>
+	);
+}

@@ -34,3 +34,6 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+
+Next AI Prompt: You'd notice that the old sidebar fits right on the page in the admin view and doesn't cover anything up. But the same cannot be said for the new one (components/sidebar). We want to maintain the style, function, and design of the newe sidebar (components/sidebar) but we want it to fit right where the old one (commented out in admin) used to be.

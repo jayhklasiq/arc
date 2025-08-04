@@ -3,6 +3,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import Sidebar from "@/components/Sidebar";
 import Link from "next/link";
 
 export default function AdminDashboard() {
@@ -35,7 +36,7 @@ export default function AdminDashboard() {
 		<div className="min-h-screen bg-[#F9FEFA]">
 			<div className="flex">
 				{/* Sidebar */}
-				<aside className="w-64 bg-white shadow-sm min-h-screen border-r border-gray-200">
+				{/* <aside className="w-64 bg-white shadow-sm min-h-screen border-r border-gray-200">
 					<nav className="p-6 space-y-2">
 						<Link href="/admin" className="flex items-center space-x-3 px-4 py-3 text-[#037764] bg-[#037764]/10 rounded-lg font-medium">
 							<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -44,11 +45,11 @@ export default function AdminDashboard() {
 							<span>Dashboard</span>
 						</Link>
 
-						<Link href="/schools" className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:text-[#037764] hover:bg-gray-50 rounded-lg transition-colors">
+						<Link href="/lesson-plans" className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:text-[#037764] hover:bg-gray-50 rounded-lg transition-colors">
 							<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h1a1 1 0 011 1v5m-4 0h4" />
 							</svg>
-							<span>Schools</span>
+							<span>Lesson Plans</span>
 						</Link>
 
 						<Link href="/teachers" className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:text-[#037764] hover:bg-gray-50 rounded-lg transition-colors">
@@ -85,7 +86,8 @@ export default function AdminDashboard() {
 							<span>Settings</span>
 						</Link>
 					</nav>
-				</aside>
+				</aside> */}
+				<Sidebar userRole="admin" />
 
 				{/* Main Content */}
 				<main className="flex-1 p-6">
@@ -93,12 +95,6 @@ export default function AdminDashboard() {
 					<div className="mb-8">
 						<h2 className="text-2xl font-bold text-gray-900 mb-2">Good morning, {user?.name?.split(" ")[0] || "Admin"}! 👋</h2>
 						<div className="flex items-center space-x-6 text-sm text-gray-600">
-							{/* <span className="flex items-center space-x-2">
-								<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h1a1 1 0 011 1v5m-4 0h4" />
-								</svg>
-								<span>5 schools</span>
-							</span> */}
 							<span className="flex items-center space-x-2">
 								<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" />
