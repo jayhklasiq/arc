@@ -3,6 +3,7 @@
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
 import { useEffect } from "react";
+import Link from "next/link";
 import Sidebar from "@/components/Sidebar";
 
 export default function HomePage() {
@@ -77,6 +78,46 @@ export default function HomePage() {
 
 				{/* Dashboard Cards Grid */}
 				<div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+					{/* My Attendance Card */}
+					<div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
+						<div className="flex items-center justify-between mb-4">
+							<h3 className="text-lg font-semibold text-gray-900">My Attendance</h3>
+							<svg className="w-5 h-5 text-[#037764]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+							</svg>
+						</div>
+
+						<div className="space-y-3">
+							<div className="flex items-center justify-between p-3 bg-[#037764]/10 rounded-lg">
+								<div>
+									<p className="font-medium text-gray-900">Days in Session</p>
+									<p className="text-sm text-gray-600">Total school days</p>
+								</div>
+								<span className="text-2xl font-bold text-[#037764]">65</span>
+							</div>
+
+							<div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
+								<div>
+									<p className="font-medium text-gray-900">Days Present</p>
+									<p className="text-sm text-gray-600">Attendance rate: 95%</p>
+								</div>
+								<span className="text-2xl font-bold text-green-600">62</span>
+							</div>
+
+							<div className="flex items-center justify-between p-3 bg-red-50 rounded-lg">
+								<div>
+									<p className="font-medium text-gray-900">Days Absent</p>
+									<p className="text-sm text-gray-600">Sick leave used</p>
+								</div>
+								<span className="text-2xl font-bold text-red-600">3</span>
+							</div>
+						</div>
+
+						<Link href="/attendance" className="w-full mt-4 bg-[#037764] text-white py-2 rounded-lg hover:bg-[#025a4a] transition-colors font-medium text-center block">
+							Mark Student Attendance
+						</Link>
+					</div>
+
 					{/* Lesson Snapshot Card */}
 					<div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
 						<div className="flex items-center justify-between mb-4">
@@ -195,7 +236,6 @@ export default function HomePage() {
 					</div>
 				</div>
 
-				{/* Quick Actions Section */}
 			</main>
 		</div>
 	);
