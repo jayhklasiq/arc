@@ -2,10 +2,12 @@
 
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Sidebar from "@/components/Sidebar";
+import Link from "next/link";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
-export default function StudentDashboard() {
+function StudentDashboard() {
 	const { user, loading } = useAuth();
 	const router = useRouter();
 
@@ -18,6 +20,36 @@ export default function StudentDashboard() {
 			router.push("/login");
 		}
 	}, [user, loading, router]);
+
+	const [attendanceSummary, setAttendanceSummary] = useState({ daysRecorded: 0, present: 0, absent: 0 });
+	const [sidebarOpen, setSidebarOpen] = useState(true);
+
+	useEffect(() => {
+		try {
+			const recordsRaw = localStorage.getItem("attendanceRecords");
+			if (!recordsRaw || !user?.teacherId) {
+				setAttendanceSummary({ daysRecorded: 0, present: 0, absent: 0 });
+				return;
+			}
+			const records = JSON.parse(recordsRaw);
+			const byDate = records?.teachers || {};
+			let daysRecorded = 0;
+			let present = 0;
+			let absent = 0;
+			for (const dateKey of Object.keys(byDate)) {
+				const map = byDate[dateKey] || {};
+				const status = map[user.teacherId];
+				if (status) {
+					daysRecorded += 1;
+					if (status === "present" || status === "late") present += 1;
+					if (status === "absent") absent += 1;
+				}
+			}
+			setAttendanceSummary({ daysRecorded, present, absent });
+		} catch (_e) {
+			setAttendanceSummary({ daysRecorded: 0, present: 0, absent: 0 });
+		}
+	}, [user]);
 
 	if (loading) {
 		return (
@@ -33,29 +65,31 @@ export default function StudentDashboard() {
 
 	return (
 		<div className="min-h-screen bg-[#F9FEFA]">
-			<Sidebar userRole="student" />
+			<Sidebar userRole="teacher" />
 
 			{/* Main Content */}
-			<main className="p-6">
+			<main className="p-6 transition-all duration-300 md:ml-64">
 				{/* Welcome Header */}
 				<div className="mb-8">
-					<h2 className="text-2xl font-bold text-gray-900 mb-2">Good morning, {user?.name?.split(" ")[0] || "Student"}! 👋</h2>
+					<h2 className="text-2xl font-bold text-gray-900 mb-2">Good morning, {user?.name?.split(" ")[0] || "Teacher"}! 👋</h2>
 					<div className="flex items-center space-x-6 text-sm text-gray-600">
 						<span className="flex items-center space-x-2">
 							<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
 							</svg>
-							<span>Grade 8</span>
+							<span>Attendance</span>
 						</span>
 						<span className="flex items-center space-x-2">
 							<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
 								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 0h6m-6 0l-2 2m8-2l2 2" />
 							</svg>
-							<span>Week 3 of 12</span>
+							<Link href="/attendance" className="text-[#037764] hover:underline">
+								Mark today's
+							</Link>
 						</span>
 						<span className="flex items-center space-x-2">
 							<div className="w-2 h-2 bg-[#FED703] rounded-full"></div>
-							<span>2 assignments due soon</span>
+							<span>Quick access</span>
 						</span>
 					</div>
 				</div>
@@ -89,26 +123,26 @@ export default function StudentDashboard() {
 						<div className="space-y-3">
 							<div className="flex items-center justify-between p-3 bg-[#037764]/10 rounded-lg">
 								<div>
-									<p className="font-medium text-gray-900">Days in Session</p>
-									<p className="text-sm text-gray-600">Total school days</p>
+									<p className="font-medium text-gray-900">Days Recorded</p>
+									<p className="text-sm text-gray-600">Attendance days logged</p>
 								</div>
-								<span className="text-2xl font-bold text-[#037764]">65</span>
+								<span className="text-2xl font-bold text-[#037764]">{attendanceSummary.daysRecorded}</span>
 							</div>
 
 							<div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
 								<div>
 									<p className="font-medium text-gray-900">Days Present</p>
-									<p className="text-sm text-gray-600">Attendance rate: 92%</p>
+									<p className="text-sm text-gray-600">Includes late as present</p>
 								</div>
-								<span className="text-2xl font-bold text-green-600">60</span>
+								<span className="text-2xl font-bold text-green-600">{attendanceSummary.present}</span>
 							</div>
 
 							<div className="flex items-center justify-between p-3 bg-red-50 rounded-lg">
 								<div>
 									<p className="font-medium text-gray-900">Days Absent</p>
-									<p className="text-sm text-gray-600">Sick leave used</p>
+									<p className="text-sm text-gray-600">From logged attendance</p>
 								</div>
-								<span className="text-2xl font-bold text-red-600">3</span>
+								<span className="text-2xl font-bold text-red-600">{attendanceSummary.absent}</span>
 							</div>
 						</div>
 
@@ -165,14 +199,6 @@ export default function StudentDashboard() {
 						</div>
 
 						<div className="space-y-3">
-							<div className="flex items-center justify-between p-3 bg-[#FED703]/10 rounded-lg">
-								<div>
-									<p className="font-medium text-gray-900">Math Homework</p>
-									<p className="text-sm text-gray-600">Due tomorrow</p>
-								</div>
-								<span className="px-2 py-1 bg-[#FED703]/20 text-yellow-800 text-xs font-medium rounded-full">Due Soon</span>
-							</div>
-
 							<div className="flex items-center justify-between p-3 bg-[#037764]/10 rounded-lg">
 								<div>
 									<p className="font-medium text-gray-900">English Essay</p>
@@ -198,7 +224,7 @@ export default function StudentDashboard() {
 						<div className="flex items-center justify-between mb-4">
 							<h3 className="text-lg font-semibold text-gray-900">My Progress</h3>
 							<svg className="w-5 h-5 text-[#037764]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2m0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
 							</svg>
 						</div>
 
@@ -235,3 +261,13 @@ export default function StudentDashboard() {
 		</div>
 	);
 }
+
+function TeacherDashboardWrapper() {
+	return (
+		<ProtectedRoute requiredRole="teacher">
+			<StudentDashboard />
+		</ProtectedRoute>
+	);
+}
+
+export default TeacherDashboardWrapper;

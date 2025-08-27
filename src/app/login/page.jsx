@@ -58,7 +58,7 @@ export default function LoginPage() {
 		setIsLoading(true);
 
 		try {
-			const result = await login(demoEmail, demoPassword, rememberMe);
+			const result = await login(demoEmail, demoPassword, rememberMe, selectedRole || "admin");
 
 			if (result.success) {
 				// Redirect to the appropriate dashboard based on selected role
@@ -81,7 +81,7 @@ export default function LoginPage() {
 		setIsLoading(true);
 
 		try {
-			const result = await login(email, password, rememberMe);
+			const result = await login(email, password, rememberMe, selectedRole);
 
 			if (result.success) {
 				// Redirect to the appropriate dashboard based on selected role

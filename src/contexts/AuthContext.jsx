@@ -74,13 +74,58 @@ export function AuthProvider({ children }) {
 	const login = async (email, password, rememberMe = false, role = null) => {
 		try {
 			// Demo mode - simulate successful login
+			const normalizedRole = role || null;
+			let derivedName = "User";
+			if (normalizedRole === "admin") {
+				derivedName = "Admin";
+			} else if (normalizedRole === "teacher") {
+				derivedName = "Teacher";
+			} else if (normalizedRole === "student") {
+				derivedName = "Student";
+			} else if (email) {
+				const localPart = (email.split("@")[0] || "").replace(/[._-]+/g, " ").trim();
+				derivedName =
+					localPart
+						.split(" ")
+						.filter(Boolean)
+						.map((segment) => segment.charAt(0).toUpperCase() + segment.slice(1))
+						.join(" ") || "User";
+			}
+
 			const demoUser = {
 				id: "1",
-				name: "Demo User",
+				name: derivedName,
 				email: email,
-				role: role, // Store the role from login context
+				role: normalizedRole, // Store the role from login context
 				createdAt: new Date().toISOString(),
 			};
+
+			// Try to link this demo user to a real entity in localStorage
+			try {
+				if (normalizedRole === "student") {
+					const studentsRaw = localStorage.getItem("students");
+					if (studentsRaw) {
+						const students = JSON.parse(studentsRaw);
+						if (Array.isArray(students) && students.length > 0) {
+							demoUser.studentId = students[0].id;
+							const fullName = `${students[0].firstName || ""} ${students[0].middleName ? students[0].middleName + " " : ""}${students[0].lastName || ""}`.trim();
+							if (fullName) demoUser.name = fullName;
+						}
+					}
+				} else if (normalizedRole === "teacher") {
+					const teachersRaw = localStorage.getItem("teachers");
+					if (teachersRaw) {
+						const teachers = JSON.parse(teachersRaw);
+						if (Array.isArray(teachers) && teachers.length > 0) {
+							demoUser.teacherId = teachers[0].id;
+							const fullName = `${teachers[0].firstName || ""} ${teachers[0].middleName ? teachers[0].middleName + " " : ""}${teachers[0].lastName || ""}`.trim();
+							if (fullName) demoUser.name = fullName;
+						}
+					}
+				}
+			} catch (_e) {
+				// ignore mapping failures in demo mode
+			}
 
 			// Simulate API delay
 			await new Promise((resolve) => setTimeout(resolve, 1000));

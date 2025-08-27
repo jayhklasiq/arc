@@ -2,12 +2,15 @@
 
 import { useAuth } from "@/contexts/AuthContext";
 import { useRouter } from "next/navigation";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import Sidebar from "@/components/Sidebar";
+import ProtectedRoute from "@/components/ProtectedRoute";
 
-export default function StudentDashboard() {
+function StudentDashboard() {
 	const { user, loading } = useAuth();
 	const router = useRouter();
+	const [summary, setSummary] = useState({ daysRecorded: 0, present: 0, absent: 0 });
+	const [sidebarOpen, setSidebarOpen] = useState(true);
 
 	useEffect(() => {
 		if (!loading && user) {
@@ -18,6 +21,33 @@ export default function StudentDashboard() {
 			router.push("/login");
 		}
 	}, [user, loading, router]);
+
+	useEffect(() => {
+		try {
+			const raw = localStorage.getItem("attendanceRecords");
+			if (!raw || !user?.studentId) {
+				setSummary({ daysRecorded: 0, present: 0, absent: 0 });
+				return;
+			}
+			const records = JSON.parse(raw);
+			const byDate = records?.students || {};
+			let daysRecorded = 0;
+			let present = 0;
+			let absent = 0;
+			for (const dateKey of Object.keys(byDate)) {
+				const map = byDate[dateKey] || {};
+				const status = map[user.studentId];
+				if (status) {
+					daysRecorded += 1;
+					if (status === "present" || status === "late") present += 1;
+					if (status === "absent") absent += 1;
+				}
+			}
+			setSummary({ daysRecorded, present, absent });
+		} catch (_e) {
+			setSummary({ daysRecorded: 0, present: 0, absent: 0 });
+		}
+	}, [user]);
 
 	if (loading) {
 		return (
@@ -36,7 +66,7 @@ export default function StudentDashboard() {
 			<Sidebar userRole="student" />
 
 			{/* Main Content */}
-			<main className="p-6">
+			<main className="p-6 transition-all duration-300 md:ml-64">
 				{/* Welcome Header */}
 				<div className="mb-8">
 					<h2 className="text-2xl font-bold text-gray-900 mb-2">Good morning, {user?.name?.split(" ")[0] || "Student"}! 👋</h2>
@@ -89,26 +119,26 @@ export default function StudentDashboard() {
 						<div className="space-y-3">
 							<div className="flex items-center justify-between p-3 bg-[#037764]/10 rounded-lg">
 								<div>
-									<p className="font-medium text-gray-900">Days in Session</p>
-									<p className="text-sm text-gray-600">Total school days</p>
+									<p className="font-medium text-gray-900">Days Recorded</p>
+									<p className="text-sm text-gray-600">Attendance days logged</p>
 								</div>
-								<span className="text-2xl font-bold text-[#037764]">65</span>
+								<span className="text-2xl font-bold text-[#037764]">{summary.daysRecorded}</span>
 							</div>
 
 							<div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
 								<div>
 									<p className="font-medium text-gray-900">Days Present</p>
-									<p className="text-sm text-gray-600">Attendance rate: 92%</p>
+									<p className="text-sm text-gray-600">Includes late as present</p>
 								</div>
-								<span className="text-2xl font-bold text-green-600">60</span>
+								<span className="text-2xl font-bold text-green-600">{summary.present}</span>
 							</div>
 
 							<div className="flex items-center justify-between p-3 bg-red-50 rounded-lg">
 								<div>
 									<p className="font-medium text-gray-900">Days Absent</p>
-									<p className="text-sm text-gray-600">Excused absences</p>
+									<p className="text-sm text-gray-600">From logged attendance</p>
 								</div>
-								<span className="text-2xl font-bold text-red-600">5</span>
+								<span className="text-2xl font-bold text-red-600">{summary.absent}</span>
 							</div>
 						</div>
 
@@ -196,7 +226,7 @@ export default function StudentDashboard() {
 						<div className="flex items-center justify-between mb-4">
 							<h3 className="text-lg font-semibold text-gray-900">My Progress</h3>
 							<svg className="w-5 h-5 text-[#037764]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
+								<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2m0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
 							</svg>
 						</div>
 
@@ -233,3 +263,13 @@ export default function StudentDashboard() {
 		</div>
 	);
 }
+
+function StudentDashboardWrapper() {
+	return (
+		<ProtectedRoute requiredRole="student">
+			<StudentDashboard />
+		</ProtectedRoute>
+	);
+}
+
+export default StudentDashboardWrapper;

@@ -39,6 +39,16 @@ export default function Sidebar({ userRole = "admin" }) {
 		return () => document.removeEventListener("mousedown", handleClickOutside);
 	}, [isMobile, isOpen]);
 
+	// Lock body scroll on mobile when open
+	useEffect(() => {
+		if (isMobile) {
+			document.body.style.overflow = isOpen ? "hidden" : "";
+			return () => {
+				document.body.style.overflow = "";
+			};
+		}
+	}, [isMobile, isOpen]);
+
 	const toggleSidebar = () => {
 		setIsOpen(!isOpen);
 	};
@@ -77,10 +87,10 @@ export default function Sidebar({ userRole = "admin" }) {
 			case "student":
 				return [
 					{ href: "/student", label: "Dashboard", icon: "M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" },
-					{ href: "/my-lessons", label: "My Lessons", icon: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" },
+					{ href: "/my-lessons", label: "My Lessons", icon: "M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586 a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" },
 					{ href: "/my-assignments", label: "My Assignments", icon: "M9 5H7a2 2 0 00-2 2v10a2 2 0 002 2h8a2 2 0 002-2V7a2 2 0 00-2-2h-2M9 5a2 2 0 002 2h2a2 2 0 002-2M9 5a2 2 0 012-2h2a2 2 0 012 2" },
 					{ href: "/grades", label: "My Grades", icon: "M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" },
-					{ href: "/schedule", label: "Schedule", icon: "M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4m-6 0h6m-6 0l-2 2m8-2l2 2" },
+					{ href: "/schedule", label: "Schedule", icon: "M8 7V3a2 2 0 012-2h4a2 2 0 012 2v4 m-6 0h6m-6 0l-2 2m8-2l2 2" },
 					{
 						href: "/settings",
 						label: "Settings",
@@ -111,8 +121,8 @@ export default function Sidebar({ userRole = "admin" }) {
 				)}
 			</button>
 
-			{/* Sidebar */}
-			<aside id="sidebar" className={`fixed top-0 left-0 h-full bg-white shadow-lg border-r border-gray-200 z-40 transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-0" : "-translate-x-full"} ${isMobile ? "w-64" : "w-64"}`}>
+			{/* Sidebar - now positioned side-by-side instead of covering content */}
+			<aside id="sidebar" className={`fixed top-16 left-0 h-[calc(100vh-4rem)] bg-white shadow-lg border-r border-gray-200 z-40 transition-transform duration-300 ease-in-out ${isOpen ? "translate-x-0" : "-translate-x-full"} ${isMobile ? "w-64" : "w-64"}`}>
 				{/* Close button for desktop */}
 				{!isMobile && isOpen && (
 					<button onClick={toggleSidebar} className="absolute top-4 right-4 p-1 text-gray-500 hover:text-gray-700 hover:bg-gray-100 rounded">
@@ -122,7 +132,7 @@ export default function Sidebar({ userRole = "admin" }) {
 					</button>
 				)}
 
-				<nav className="p-6 space-y-2 mt-16">
+				<nav className="p-6 space-y-2">
 					{navItems.map((item) => {
 						const isActive = pathname === item.href;
 						return (
@@ -137,8 +147,8 @@ export default function Sidebar({ userRole = "admin" }) {
 				</nav>
 			</aside>
 
-			{/* Overlay for mobile */}
-			{isMobile && isOpen && <div className="fixed inset-0 bg-black bg-opacity-50 z-30" onClick={() => setIsOpen(false)} />}
+			{/* Overlay for mobile with backdrop blur */}
+			{isMobile && isOpen && <div className="fixed inset-0 bg-black/30 backdrop-blur-sm z-30" onClick={() => setIsOpen(false)} />}
 		</>
 	);
 }
