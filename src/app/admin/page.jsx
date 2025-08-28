@@ -12,6 +12,10 @@ function AdminDashboard() {
 	const router = useRouter();
 	const [teacherPct, setTeacherPct] = useState(0);
 	const [studentPct, setStudentPct] = useState(0);
+	const [totalStudents, setTotalStudents] = useState(0);
+	const [totalTeachers, setTotalTeachers] = useState(0);
+	const [activeStudents, setActiveStudents] = useState(0);
+	const [activeTeachers, setActiveTeachers] = useState(0);
 
 	useEffect(() => {
 		if (!loading && user) {
@@ -28,6 +32,18 @@ function AdminDashboard() {
 			const teachers = JSON.parse(localStorage.getItem("teachers") || "[]");
 			const students = JSON.parse(localStorage.getItem("students") || "[]");
 			const records = JSON.parse(localStorage.getItem("attendanceRecords") || "{}");
+
+			// Calculate totals
+			setTotalTeachers(teachers.length);
+			setTotalStudents(students.length);
+
+			// Calculate active counts (only active status)
+			const activeTeachersCount = teachers.filter((teacher) => teacher.employmentStatus === "active").length;
+			const activeStudentsCount = students.filter((student) => student.studentStatus === "active").length;
+			setActiveTeachers(activeTeachersCount);
+			setActiveStudents(activeStudentsCount);
+
+			// Calculate attendance percentages
 			const latestTeacherDate = Object.keys(records?.teachers || {})
 				.sort()
 				.pop();
@@ -38,11 +54,15 @@ function AdminDashboard() {
 			const sByDate = (records?.students || {})[latestStudentDate] || {};
 			const teacherPresent = Object.values(tByDate).filter((v) => v === "present" || v === "late").length;
 			const studentPresent = Object.values(sByDate).filter((v) => v === "present" || v === "late").length;
-			setTeacherPct(teachers.length ? Math.round((teacherPresent / teachers.length) * 100) : 0);
-			setStudentPct(students.length ? Math.round((studentPresent / students.length) * 100) : 0);
+			setTeacherPct(activeTeachersCount ? Math.round((teacherPresent / activeTeachersCount) * 100) : 0);
+			setStudentPct(activeStudentsCount ? Math.round((studentPresent / activeStudentsCount) * 100) : 0);
 		} catch (_e) {
 			setTeacherPct(0);
 			setStudentPct(0);
+			setTotalStudents(0);
+			setTotalTeachers(0);
+			setActiveStudents(0);
+			setActiveTeachers(0);
 		}
 	}, [loading]);
 
@@ -61,58 +81,6 @@ function AdminDashboard() {
 	return (
 		<div className="min-h-screen bg-[#F9FEFA]">
 			<div className="flex">
-				{/* Sidebar */}
-				{/* <aside className="w-64 bg-white shadow-sm min-h-screen border-r border-gray-200"> */}
-				{/* 	<nav className="p-6 space-y-2"> */}
-				{/* 		<Link href="/admin" className="flex items-center space-x-3 px-4 py-3 text-[#037764] bg-[#037764]/10 rounded-lg font-medium"> */}
-				{/* 			<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"> */}
-				{/* 				<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M3 7v10a2 2 0 002 2h14a2 2 0 002-2V9a2 2 0 00-2-2H5a2 2 0 00-2-2z" /> */}
-				{/* 			</svg> */}
-				{/* 			<span>Dashboard</span> */}
-				{/* 		</Link> */}
-
-				{/* 		<Link href="/lesson-plans" className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:text-[#037764] hover:bg-gray-50 rounded-lg transition-colors"> */}
-				{/* 			<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"> */}
-				{/* 				<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h1a1 1 0 011 1v5m-4 0h4" /> */}
-				{/* 			</svg> */}
-				{/* 			<span>Lesson Plans</span> */}
-				{/* 		</Link> */}
-
-				{/* 		<Link href="/teachers" className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:text-[#037764] hover:bg-gray-50 rounded-lg transition-colors"> */}
-				{/* 			<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"> */}
-				{/* 			<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" /> */}
-				{/* 			</svg> */}
-				{/* 			<span>Teachers</span> */}
-				{/* 		</Link> */}
-
-				{/* 		<Link href="/students" className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:text-[#037764] hover:bg-gray-50 rounded-lg transition-colors"> */}
-				{/* 			<svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24"> */}
-				{/* 				<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197m13.5-9a2.5 2.5 0 11-5 0 2.5 2.5 0 015 0z" /> */}
-				{/* 			</svg> */}
-				{/* 			<span>Students</span> */}
-				{/* 		</Link> */}
-
-				{/* 		<Link href="/analytics" className="flex items-center space-x-3 px-4 py-3 text-gray-700 hover:text-[#037764] hover:bg-gray-50 rounded-lg transition-colors"> */}
-				{/* 			<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"> */}
-				{/* 	<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" /> */}
-				{/* 			</svg> */}
-				{/* 			<span>Analytics</span> */}
-				{/* 		</Link> */}
-
-				{/* 		<Link href="/settings" className="flex items-center space-x-x3 px-4 py-3 text-gray-700 hover:text-[#037764] hover:bg-gray-50 rounded-lg transition-colors"> */}
-				{/* 			<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24"> */}
-				{/* 				<path */}
-				{/* 					strokeLinecap="round" */}
-				{/* 					strokeLinejoin="round" */}
-				{/* 					strokeWidth="2" */}
-				{/* 					d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.07 2.572-1.065z" */}
-				{/* 				/> */}
-				{/* 				<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" /> */}
-				{/* 			</svg> */}
-				{/* 			<span>Settings</span> */}
-				{/* 		</Link> */}
-				{/* 	</nav> */}
-				{/* </aside> */}
 				<Sidebar userRole="admin" />
 
 				{/* Main Content */}
@@ -136,11 +104,14 @@ function AdminDashboard() {
 									const tByDate = (records?.teachers || {})[latestDate] || {};
 									const sByDate = (records?.students || {})[latestStudentsDate] || {};
 
+									const activeTeachersCount = teachers.filter((teacher) => teacher.employmentStatus === "active").length;
+									const activeStudentsCount = students.filter((student) => student.studentStatus === "active").length;
+
 									const teacherPresent = Object.values(tByDate).filter((v) => v === "present" || v === "late").length;
 									const studentPresent = Object.values(sByDate).filter((v) => v === "present" || v === "late").length;
 
-									const teacherPct = teachers.length ? Math.round((teacherPresent / teachers.length) * 100) : 0;
-									const studentPct = students.length ? Math.round((studentPresent / students.length) * 100) : 0;
+									const teacherPct = activeTeachersCount ? Math.round((teacherPresent / activeTeachersCount) * 100) : 0;
+									const studentPct = activeStudentsCount ? Math.round((studentPresent / activeStudentsCount) * 100) : 0;
 
 									return (
 										<>
@@ -216,40 +187,6 @@ function AdminDashboard() {
 							</div>
 						</div>
 
-						{/* Overall Attendance Card */}
-						<div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
-							<div className="flex items-center justify-between mb-4">
-								<h3 className="text-lg font-semibold text-gray-900">Overall Attendance</h3>
-								<svg className="w-5 h-5 text-[#037764]" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z" />
-								</svg>
-							</div>
-
-							<div className="space-y-3">
-								<div className="flex items-center justify-between p-3 bg-[#037764]/10 rounded-lg">
-									<div>
-										<p className="font-medium text-gray-900">Teacher Attendance</p>
-										<p className="text-sm text-gray-600">This month average</p>
-									</div>
-									<span className="text-2xl font-bold text-[#037764]">{teacherPct}%</span>
-								</div>
-
-								<div className="flex items-center justify-between p-3 bg-green-50 rounded-lg">
-									<div>
-										<p className="font-medium text-gray-900">Student Attendance</p>
-										<p className="text-sm text-gray-600">This month average</p>
-									</div>
-									<span className="text-2xl font-bold text-green-600">{studentPct}%</span>
-								</div>
-							</div>
-
-							<div className="flex space-x-2 mt-4">
-								<Link href="/attendance" className="flex-1 bg-[#037764] text-white py-2 rounded-lg hover:bg-[#025a4a] transition-colors font-medium text-center">
-									Mark Teacher Attendance
-								</Link>
-							</div>
-						</div>
-
 						{/* School Overview Card */}
 						<div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
 							<div className="flex items-center justify-between mb-4">
@@ -263,21 +200,32 @@ function AdminDashboard() {
 								<div className="flex items-center justify-between p-3 bg-[#037764]/10 rounded-lg">
 									<div>
 										<p className="font-medium text-gray-900">Total Students</p>
-										<p className="text-sm text-gray-600">Across all schools</p>
+										<p className="text-sm text-gray-600">
+											{activeStudents} active, {totalStudents - activeStudents} former
+										</p>
 									</div>
-									<span className="text-2xl font-bold text-[#037764]">2,847</span>
+									<span className="text-2xl font-bold text-[#037764]">{totalStudents.toLocaleString()}</span>
 								</div>
 
 								<div className="flex items-center justify-between p-3 bg-purple-50 rounded-lg">
 									<div>
 										<p className="font-medium text-gray-900">Total Teachers</p>
-										<p className="text-sm text-gray-600">Active staff members</p>
+										<p className="text-sm text-gray-600">
+											{activeTeachers} active, {totalTeachers - activeTeachers} former
+										</p>
 									</div>
-									<span className="text-2xl font-bold text-purple-600">142</span>
+									<span className="text-2xl font-bold text-purple-600">{totalTeachers}</span>
 								</div>
 							</div>
 
-							<button className="w-full mt-4 text-[#037764] hover:bg-[#037764]/5 py-2 rounded-lg transition-colors font-medium">View Detailed Reports</button>
+							<div className="grid grid-cols-2 gap-2 mt-4">
+								<Link href="/students" className="text-center text-[#037764] hover:bg-[#037764]/5 py-2 rounded-lg transition-colors font-medium text-sm">
+									Manage Students
+								</Link>
+								<Link href="/teachers" className="text-center text-[#037764] hover:bg-[#037764]/5 py-2 rounded-lg transition-colors font-medium text-sm">
+									Manage Teachers
+								</Link>
+							</div>
 						</div>
 
 						{/* System Health Panel */}
@@ -300,10 +248,10 @@ function AdminDashboard() {
 
 								<div className="flex items-center justify-between p-3 bg-[#FED703]/10 rounded-lg">
 									<div>
-										<p className="font-medium text-gray-900">Pending Updates</p>
-										<p className="text-sm text-gray-600">System maintenance</p>
+										<p className="font-medium text-gray-900">Data Storage</p>
+										<p className="text-sm text-gray-600">{totalStudents + totalTeachers} records stored</p>
 									</div>
-									<span className="px-2 py-1 bg-[#FED703]/20 text-yellow-800 text-xs font-medium rounded-full">3 Updates</span>
+									<span className="px-2 py-1 bg-[#FED703]/20 text-yellow-800 text-xs font-medium rounded-full">Active</span>
 								</div>
 
 								<div className="flex items-center justify-between p-3 bg-[#037764]/10 rounded-lg">
@@ -329,23 +277,29 @@ function AdminDashboard() {
 
 							<div className="space-y-4">
 								<div className="flex items-center justify-between">
-									<span className="text-sm text-gray-600">Teacher onboarding</span>
-									<span className="text-sm font-medium text-[#037764]">8 completed</span>
+									<span className="text-sm text-gray-600">Active Teachers</span>
+									<span className="text-sm font-medium text-[#037764]">
+										{activeTeachers} of {totalTeachers}
+									</span>
 								</div>
 								<div className="w-full bg-gray-200 rounded-full h-2">
-									<div className="bg-[#037764] h-2 rounded-full" style={{ width: "75%" }}></div>
+									<div className="bg-[#037764] h-2 rounded-full" style={{ width: `${totalTeachers > 0 ? (activeTeachers / totalTeachers) * 100 : 0}%` }}></div>
 								</div>
 
 								<div className="flex items-center justify-between">
-									<span className="text-sm text-gray-600">System usage</span>
-									<span className="text-sm font-medium text-[#037764]">94% active</span>
+									<span className="text-sm text-gray-600">Active Students</span>
+									<span className="text-sm font-medium text-[#037764]">
+										{activeStudents} of {totalStudents}
+									</span>
 								</div>
 								<div className="w-full bg-gray-200 rounded-full h-2">
-									<div className="bg-[#037764] h-2 rounded-full" style={{ width: "94%" }}></div>
+									<div className="bg-[#037764] h-2 rounded-full" style={{ width: `${totalStudents > 0 ? (activeStudents / totalStudents) * 100 : 0}%` }}></div>
 								</div>
 							</div>
 
-							<button className="w-full mt-4 text-[#037764] hover:bg-[#037764]/5 py-2 rounded-lg transition-colors font-medium">View All Activity</button>
+							<Link href="/analytics" className="block w-full mt-4 text-[#037764] hover:bg-[#037764]/5 py-2 rounded-lg transition-colors font-medium text-center">
+								View Analytics
+							</Link>
 						</div>
 					</div>
 				</main>

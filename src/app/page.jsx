@@ -1,8 +1,47 @@
 "use client";
 
+import { useEffect } from "react";
+import { useRouter } from "next/navigation";
 import Link from "next/link";
+import { useAuth } from "@/contexts/AuthContext";
 
 export default function WelcomePage() {
+	const { user } = useAuth();
+	const router = useRouter();
+
+	// Redirect logged-in users to their dashboard
+	useEffect(() => {
+		if (user) {
+			switch (user.role) {
+				case "admin":
+					router.replace("/admin");
+					break;
+				case "teacher":
+					router.replace("/teacher");
+					break;
+				case "student":
+					router.replace("/student");
+					break;
+				default:
+					// Fallback to admin dashboard if role is unknown
+					router.replace("/admin");
+					break;
+			}
+		}
+	}, [user, router]);
+
+	// Don't render the welcome page content if user is logged in
+	if (user) {
+		return (
+			<div className="min-h-screen bg-[#F9FEFA] flex items-center justify-center">
+				<div className="text-center">
+					<div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#037764] mx-auto mb-4"></div>
+					<p className="text-gray-600">Redirecting to your dashboard...</p>
+				</div>
+			</div>
+		);
+	}
+
 	return (
 		<div className="min-h-screen bg-[#F9FEFA]">
 			{/* Hero Section */}
@@ -211,102 +250,102 @@ export default function WelcomePage() {
 
 			{/* Footer */}
 			{/* <footer className="bg-gray-900 text-white py-12 px-6">
-				<div className="max-w-6xl mx-auto">
-					<div className="grid grid-cols-1 md:grid-cols-4 gap-8">
-						<div>
-							<div className="flex items-center space-x-2 mb-4">
-								<div className="w-8 h-8 bg-[#037764] rounded-lg flex items-center justify-center">
-									<span className="text-white font-bold text-lg">A</span>
-								</div>
-								<span className="text-xl font-semibold">Arc Education</span>
-							</div>
-							<p className="text-gray-400">Empowering teachers to create better learning experiences for every student.</p>
-						</div>
+                <div className="max-w-6xl mx-auto">
+                    <div className="grid grid-cols-1 md:grid-cols-4 gap-8">
+                        <div>
+                            <div className="flex items-center space-x-2 mb-4">
+                                <div className="w-8 h-8 bg-[#037764] rounded-lg flex items-center justify-center">
+                                    <span className="text-white font-bold text-lg">A</span>
+                                </div>
+                                <span className="text-xl font-semibold">Arc Education</span>
+                            </div>
+                            <p className="text-gray-400">Empowering teachers to create better learning experiences for every student.</p>
+                        </div>
 
-						<div>
-							<h4 className="font-semibold mb-4">Product</h4>
-							<ul className="space-y-2 text-gray-400">
-								<li>
-									<Link href="#" className="hover:text-white transition-colors">
-										Features
-									</Link>
-								</li>
-								<li>
-									<Link href="#" className="hover:text-white transition-colors">
-										Pricing
-									</Link>
-								</li>
-								<li>
-									<Link href="#" className="hover:text-white transition-colors">
-										Integrations
-									</Link>
-								</li>
-								<li>
-									<Link href="#" className="hover:text-white transition-colors">
-										API
-									</Link>
-								</li>
-							</ul>
-						</div>
+                        <div>
+                            <h4 className="font-semibold mb-4">Product</h4>
+                            <ul className="space-y-2 text-gray-400">
+                                <li>
+                                    <Link href="#" className="hover:text-white transition-colors">
+                                        Features
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link href="#" className="hover:text-white transition-colors">
+                                        Pricing
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link href="#" className="hover:text-white transition-colors">
+                                        Integrations
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link href="#" className="hover:text-white transition-colors">
+                                        API
+                                    </Link>
+                                </li>
+                            </ul>
+                        </div>
 
-						<div>
-							<h4 className="font-semibold mb-4">Support</h4>
-							<ul className="space-y-2 text-gray-400">
-								<li>
-									<Link href="#" className="hover:text-white transition-colors">
-										Help Center
-									</Link>
-								</li>
-								<li>
-									<Link href="#" className="hover:text-white transition-colors">
-										Contact Us
-									</Link>
-								</li>
-								<li>
-									<Link href="#" className="hover:text-white transition-colors">
-										Training
-									</Link>
-								</li>
-								<li>
-									<Link href="#" className="hover:text-white transition-colors">
-										Community
-									</Link>
-								</li>
-							</ul>
-						</div>
+                        <div>
+                            <h4 className="font-semibold mb-4">Support</h4>
+                            <ul className="space-y-2 text-gray-400">
+                                <li>
+                                    <Link href="#" className="hover:text-white transition-colors">
+                                        Help Center
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link href="#" className="hover:text-white transition-colors">
+                                        Contact Us
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link href="#" className="hover:text-white transition-colors">
+                                        Training
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link href="#" className="hover:text-white transition-colors">
+                                        Community
+                                    </Link>
+                                </li>
+                            </ul>
+                        </div>
 
-						<div>
-							<h4 className="font-semibold mb-4">Company</h4>
-							<ul className="space-y-2 text-gray-400">
-								<li>
-									<Link href="#" className="hover:text-white transition-colors">
-										About
-									</Link>
-								</li>
-								<li>
-									<Link href="#" className="hover:text-white transition-colors">
-										Blog
-									</Link>
-								</li>
-								<li>
-									<Link href="#" className="hover:text-white transition-colors">
-										Careers
-									</Link>
-								</li>
-								<li>
-									<Link href="#" className="hover:text-white transition-colors">
-										Privacy
-									</Link>
-								</li>
-							</ul>
-						</div>
-					</div>
+                        <div>
+                            <h4 className="font-semibold mb-4">Company</h4>
+                            <ul className="space-y-2 text-gray-400">
+                                <li>
+                                    <Link href="#" className="hover:text-white transition-colors">
+                                        About
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link href="#" className="hover:text-white transition-colors">
+                                        Blog
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link href="#" className="hover:text-white transition-colors">
+                                        Careers
+                                    </Link>
+                                </li>
+                                <li>
+                                    <Link href="#" className="hover:text-white transition-colors">
+                                        Privacy
+                                    </Link>
+                                </li>
+                            </ul>
+                        </div>
+                    </div>
 
-					<div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
-						<p>&copy; 2024 Arc Education. All rights reserved.</p>
-					</div>
-				</div>
-			</footer> */}
+                    <div className="border-t border-gray-800 mt-8 pt-8 text-center text-gray-400">
+                        <p>&copy; 2024 Arc Education. All rights reserved.</p>
+                    </div>
+                </div>
+            </footer> */}
 		</div>
 	);
 }

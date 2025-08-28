@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
+import { useRouter } from "next/navigation";
 import ProtectedRoute from "@/components/ProtectedRoute";
 import ImportModal from "@/components/ImportModal";
 
@@ -8,6 +9,8 @@ function TeachersContent() {
 	const [teachers, setTeachers] = useState([]);
 	const [isImportModalOpen, setIsImportModalOpen] = useState(false);
 	const [isLoading, setIsLoading] = useState(true);
+	const [filterStatus, setFilterStatus] = useState("all"); // all, active, inactive
+	const router = useRouter();
 
 	useEffect(() => {
 		// Check if teachers data exists
@@ -15,7 +18,16 @@ function TeachersContent() {
 			try {
 				const savedTeachers = localStorage.getItem("teachers");
 				if (savedTeachers) {
-					setTeachers(JSON.parse(savedTeachers));
+					const parsedTeachers = JSON.parse(savedTeachers);
+					// Add employmentStatus if it doesn't exist (for backward compatibility)
+					const updatedTeachers = parsedTeachers.map((teacher) => ({
+						...teacher,
+						employmentStatus: teacher.employmentStatus || "active",
+						endDate: teacher.endDate || "",
+					}));
+					setTeachers(updatedTeachers);
+					// Save updated data back to localStorage
+					localStorage.setItem("teachers", JSON.stringify(updatedTeachers));
 				}
 			} catch (error) {
 				console.error("Error loading teachers data:", error);
@@ -42,6 +54,8 @@ function TeachersContent() {
 				hireDate: row.hire_date || "",
 				assignedClass: row.assigned_class || "",
 				subjectsTaught: row.subjects_taught ? row.subjects_taught.split(",").map((s) => s.trim()) : [],
+				employmentStatus: row.employment_status || "active",
+				endDate: row.end_date || "",
 			}));
 
 			setTeachers(processedTeachers);
@@ -50,6 +64,21 @@ function TeachersContent() {
 			console.error("Error processing teacher data:", error);
 		}
 	};
+
+	const handleTeacherClick = (teacherId) => {
+		router.push(`/teachers/${teacherId}/edit`);
+	};
+
+	// Filter teachers based on employment status
+	const filteredTeachers = teachers.filter((teacher) => {
+		if (filterStatus === "all") return true;
+		if (filterStatus === "active") return teacher.employmentStatus === "active";
+		if (filterStatus === "inactive") return teacher.employmentStatus === "inactive";
+		return true;
+	});
+
+	const activeTeachersCount = teachers.filter((t) => t.employmentStatus === "active").length;
+	const inactiveTeachersCount = teachers.filter((t) => t.employmentStatus === "inactive").length;
 
 	if (isLoading) {
 		return (
@@ -96,11 +125,22 @@ function TeachersContent() {
 							<div className="flex justify-between items-center">
 								<div>
 									<h1 className="text-2xl font-bold text-white">Teachers</h1>
-									<p className="text-[#F9FEFA] mt-1">{teachers.length} teachers employed</p>
+									<div className="flex space-x-4 mt-1">
+										<p className="text-[#F9FEFA]">{activeTeachersCount} active teachers</p>
+										<p className="text-[#F9FEFA]">{inactiveTeachersCount} former teachers</p>
+									</div>
 								</div>
-								<button onClick={() => setIsImportModalOpen(true)} className="bg-white text-[#037764] px-4 py-2 rounded-md text-sm font-medium hover:bg-[#037764]/10 transition-colors">
-									Import More Teachers
-								</button>
+								<div className="flex items-center space-x-4">
+									{/* Filter Dropdown */}
+									<select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="bg-white text-[#037764] px-3 py-2 rounded-md text-sm font-medium border border-white/20">
+										<option value="all">All Teachers ({teachers.length})</option>
+										<option value="active">Active ({activeTeachersCount})</option>
+										<option value="inactive">Former ({inactiveTeachersCount})</option>
+									</select>
+									<button onClick={() => setIsImportModalOpen(true)} className="bg-white text-[#037764] px-4 py-2 rounded-md text-sm font-medium">
+										Import More Teachers
+									</button>
+								</div>
 							</div>
 						</div>
 
@@ -109,35 +149,53 @@ function TeachersContent() {
 								<thead className="bg-gray-50">
 									<tr>
 										<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Teacher Name</th>
+										<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
 										<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Age</th>
 										<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Assigned Class</th>
 										<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Subjects</th>
 										<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Qualifications</th>
 										<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Contact</th>
-										<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Hire Date</th>
+										<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Employment Period</th>
+										<th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Actions</th>
 									</tr>
 								</thead>
 								<tbody className="bg-white divide-y divide-gray-200">
-									{teachers.map((teacher) => (
-										<tr key={teacher.id} className="hover:bg-gray-50">
+									{filteredTeachers.map((teacher) => (
+										<tr key={teacher.id} className="hover:bg-gray-50 cursor-pointer transition-colors" onClick={() => handleTeacherClick(teacher.id)}>
 											<td className="px-6 py-4 whitespace-nowrap">
-												<div className="text-sm font-medium text-gray-900">{`${teacher.firstName} ${teacher.middleName ? teacher.middleName + " " : ""}${teacher.lastName}`}</div>
+												<div className="flex items-center">
+													<div className="flex-shrink-0 h-10 w-10">
+														<div className={`h-10 w-10 rounded-full flex items-center justify-center ${teacher.employmentStatus === "active" ? "bg-[#037764]" : "bg-gray-400"}`}>
+															<span className="text-sm font-medium text-white">
+																{teacher.firstName.charAt(0)}
+																{teacher.lastName.charAt(0)}
+															</span>
+														</div>
+													</div>
+													<div className="ml-4">
+														<div className={`text-sm font-medium ${teacher.employmentStatus === "active" ? "text-gray-900" : "text-gray-500"}`}>{`${teacher.firstName} ${teacher.middleName ? teacher.middleName + " " : ""}${teacher.lastName}`}</div>
+														<div className="text-sm text-gray-500">{teacher.workEmail}</div>
+													</div>
+												</div>
+											</td>
+											<td className="px-6 py-4 whitespace-nowrap">
+												<span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${teacher.employmentStatus === "active" ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}>{teacher.employmentStatus === "active" ? "Active" : "Former"}</span>
 											</td>
 											<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{teacher.age} years</td>
-											<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{teacher.assignedClass}</td>
+											<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{teacher.employmentStatus === "active" ? teacher.assignedClass : "N/A"}</td>
 											<td className="px-6 py-4">
 												<div className="text-sm text-gray-900">
-													{teacher.subjectsTaught.length > 0 ? (
+													{teacher.subjectsTaught.length > 0 && teacher.employmentStatus === "active" ? (
 														<div className="flex flex-wrap gap-1">
-															{teacher.subjectsTaught.slice(0, 3).map((subject, index) => (
+															{teacher.subjectsTaught.slice(0, 2).map((subject, index) => (
 																<span key={index} className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-[#037764]/20 text-[#037764]">
 																	{subject}
 																</span>
 															))}
-															{teacher.subjectsTaught.length > 3 && <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">+{teacher.subjectsTaught.length - 3} more</span>}
+															{teacher.subjectsTaught.length > 2 && <span className="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">+{teacher.subjectsTaught.length - 2} more</span>}
 														</div>
 													) : (
-														"No subjects assigned"
+														<span className="text-gray-400">No subjects assigned</span>
 													)}
 												</div>
 											</td>
@@ -146,7 +204,25 @@ function TeachersContent() {
 												<div className="text-sm text-gray-900">{teacher.phoneNumber}</div>
 												<div className="text-sm text-gray-500">{teacher.workEmail}</div>
 											</td>
-											<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{teacher.hireDate ? new Date(teacher.hireDate).toLocaleDateString() : "N/A"}</td>
+											<td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+												<div>
+													<div className="font-medium">Started: {teacher.hireDate ? new Date(teacher.hireDate).toLocaleDateString() : "N/A"}</div>
+													{teacher.employmentStatus === "inactive" && teacher.endDate && <div className="text-red-600">Ended: {new Date(teacher.endDate).toLocaleDateString()}</div>}
+												</div>
+											</td>
+											<td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
+												<button
+													onClick={(e) => {
+														e.stopPropagation();
+														handleTeacherClick(teacher.id);
+													}}
+													className="text-[#037764] hover:text-[#025a4a] transition-colors"
+												>
+													<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+														<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+													</svg>
+												</button>
+											</td>
 										</tr>
 									))}
 								</tbody>

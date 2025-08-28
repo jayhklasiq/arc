@@ -7,6 +7,8 @@ const AuthContext = createContext();
 
 // Helper functions for localStorage with expiration
 const setItemWithExpiry = (key, value, ttl) => {
+	if (typeof window === "undefined") return; // SSR guard
+
 	const now = new Date();
 	const item = {
 		value: value,
@@ -16,6 +18,8 @@ const setItemWithExpiry = (key, value, ttl) => {
 };
 
 const getItemWithExpiry = (key) => {
+	if (typeof window === "undefined") return null; // SSR guard
+
 	const itemStr = localStorage.getItem(key);
 	if (!itemStr) {
 		return null;
@@ -40,9 +44,18 @@ const getItemWithExpiry = (key) => {
 export function AuthProvider({ children }) {
 	const [user, setUser] = useState(null);
 	const [loading, setLoading] = useState(true);
+	const [isClient, setIsClient] = useState(false);
 	const router = useRouter();
 
+	// Set client flag after mount to prevent hydration mismatch
 	useEffect(() => {
+		setIsClient(true);
+	}, []);
+
+	useEffect(() => {
+		// Only run auth check on client side
+		if (!isClient) return;
+
 		// Check if user is logged in from localStorage
 		const checkAuth = async () => {
 			try {
@@ -69,7 +82,7 @@ export function AuthProvider({ children }) {
 		};
 
 		checkAuth();
-	}, []);
+	}, [isClient]);
 
 	const login = async (email, password, rememberMe = false, role = null) => {
 		try {
