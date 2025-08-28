@@ -12,137 +12,51 @@ function LessonPlansContent() {
 	const router = useRouter();
 	const [lessonPlans, setLessonPlans] = useState([]);
 	const [isLoading, setIsLoading] = useState(true);
+	const [searchTerm, setSearchTerm] = useState("");
 	const [filterSubject, setFilterSubject] = useState("all");
 	const [filterClass, setFilterClass] = useState("all");
-	const [searchTerm, setSearchTerm] = useState("");
-	const [analytics, setAnalytics] = useState({
-		totalLessonPlans: 0,
-		subjectDistribution: {},
-		classDistribution: {},
-		teacherLessonPlans: 0,
-		recentLessonPlans: 0,
-		upcomingDeadlines: 0,
-	});
+	const [filterStatus, setFilterStatus] = useState("all");
 
-	// Check if user has permission to access lesson plans
-	const hasPermission = user && (user.role === "admin" || user.role === "teacher");
-	const canAddLessonPlans = user && user.role === "admin";
+	// Enhanced permission checks
+	const isAdmin = user?.role === "admin";
+	const isTeacher = user?.role === "teacher";
+	const canAddLessonPlans = isAdmin || isTeacher; // Both can create lesson plans
+	const canApprove = isAdmin; // Only admins can approve
 
 	useEffect(() => {
-		if (!hasPermission) {
-			setIsLoading(false);
-			return;
-		}
-
 		const loadLessonPlans = () => {
 			try {
 				const savedLessonPlans = localStorage.getItem("lessonPlans");
-				let allLessonPlans = savedLessonPlans ? JSON.parse(savedLessonPlans) : [];
+				if (savedLessonPlans) {
+					let parsedLessonPlans = JSON.parse(savedLessonPlans);
 
-				// Add sample data if none exists (for demo purposes)
-				if (allLessonPlans.length === 0) {
-					allLessonPlans = [
-						{
-							id: 1,
-							title: "Introduction to Algebra",
-							subject: "Mathematics",
-							class: "Grade 8",
-							teacher: "John Smith",
-							teacherId: "teacher1",
-							dateCreated: "2024-01-15",
-							lastModified: "2024-01-20",
-							duration: "45 minutes",
-							objectives: ["Understand basic algebraic concepts", "Solve simple equations"],
-							materials: ["Whiteboard", "Calculators", "Worksheets"],
-							status: "published",
-						},
-						{
-							id: 2,
-							title: "Photosynthesis Process",
-							subject: "Biology",
-							class: "Grade 9",
-							teacher: "Sarah Johnson",
-							teacherId: "teacher2",
-							dateCreated: "2024-01-10",
-							lastModified: "2024-01-18",
-							duration: "60 minutes",
-							objectives: ["Explain photosynthesis process", "Identify plant parts"],
-							materials: ["Microscope", "Plant samples", "Lab worksheets"],
-							status: "draft",
-						},
-						{
-							id: 3,
-							title: "World War II Overview",
-							subject: "History",
-							class: "Grade 10",
-							teacher: "Michael Brown",
-							teacherId: "teacher3",
-							dateCreated: "2024-01-12",
-							lastModified: "2024-01-19",
-							duration: "50 minutes",
-							objectives: ["Understand WWII causes", "Analyze key events"],
-							materials: ["Maps", "Historical documents", "Video clips"],
-							status: "published",
-						},
-						{
-							id: 4,
-							title: "Creative Writing Techniques",
-							subject: "English",
-							class: "Grade 7",
-							teacher: "Emily Davis",
-							teacherId: "teacher4",
-							dateCreated: "2024-01-14",
-							lastModified: "2024-01-21",
-							duration: "40 minutes",
-							objectives: ["Develop creative writing skills", "Use descriptive language"],
-							materials: ["Writing prompts", "Example texts", "Notebooks"],
-							status: "published",
-						},
-					];
-					localStorage.setItem("lessonPlans", JSON.stringify(allLessonPlans));
+					// Convert old status names to new ones for existing data
+					parsedLessonPlans = parsedLessonPlans.map((plan) => ({
+						...plan,
+						status: plan.status === "published" ? "approved" : plan.status === "submitted" ? "pending" : plan.status,
+					}));
+
+					// Update localStorage with converted statuses
+					localStorage.setItem("lessonPlans", JSON.stringify(parsedLessonPlans));
+
+					// Filter for teachers - only show their own lesson plans
+					if (isTeacher) {
+						parsedLessonPlans = parsedLessonPlans.filter((plan) => plan.teacherId === user.id || plan.teacher === user.name);
+					}
+
+					setLessonPlans(parsedLessonPlans);
+				} else {
+					// Generate demo data if none exists
+					const demoLessonPlans = generateDemoLessonPlans();
+					localStorage.setItem("lessonPlans", JSON.stringify(demoLessonPlans));
+
+					let filteredPlans = demoLessonPlans;
+					if (isTeacher) {
+						filteredPlans = demoLessonPlans.filter((plan) => plan.teacherId === user.id || plan.teacher === user.name);
+					}
+
+					setLessonPlans(filteredPlans);
 				}
-
-				// Filter lesson plans for teachers (only show their own)
-				let filteredLessonPlans = allLessonPlans;
-				if (user.role === "teacher") {
-					filteredLessonPlans = allLessonPlans.filter((plan) => plan.teacherId === user.id || plan.teacher === user.name);
-				}
-
-				setLessonPlans(filteredLessonPlans);
-
-				// Calculate analytics from actual data
-				const subjectDistribution = {};
-				const classDistribution = {};
-
-				allLessonPlans.forEach((plan) => {
-					// Subject distribution
-					subjectDistribution[plan.subject] = (subjectDistribution[plan.subject] || 0) + 1;
-
-					// Class distribution
-					classDistribution[plan.class] = (classDistribution[plan.class] || 0) + 1;
-				});
-
-				// Calculate teacher-specific metrics
-				const teacherLessonPlans = user.role === "teacher" ? filteredLessonPlans.length : allLessonPlans.length;
-
-				// Recent lesson plans (created in last 7 days)
-				const oneWeekAgo = new Date();
-				oneWeekAgo.setDate(oneWeekAgo.getDate() - 7);
-				const recentLessonPlans = allLessonPlans.filter((plan) => new Date(plan.dateCreated) >= oneWeekAgo).length;
-
-				// Upcoming deadlines (draft lessons older than 3 days)
-				const threeDaysAgo = new Date();
-				threeDaysAgo.setDate(threeDaysAgo.getDate() - 3);
-				const upcomingDeadlines = allLessonPlans.filter((plan) => plan.status === "draft" && new Date(plan.dateCreated) <= threeDaysAgo).length;
-
-				setAnalytics({
-					totalLessonPlans: allLessonPlans.length,
-					subjectDistribution,
-					classDistribution,
-					teacherLessonPlans,
-					recentLessonPlans,
-					upcomingDeadlines,
-				});
 			} catch (error) {
 				console.error("Error loading lesson plans:", error);
 			} finally {
@@ -150,23 +64,121 @@ function LessonPlansContent() {
 			}
 		};
 
-		loadLessonPlans();
-	}, [hasPermission, user]);
+		if (user) {
+			loadLessonPlans();
+		}
+	}, [user, isTeacher]);
 
-	// Filter lesson plans based on search and filters
+	const generateDemoLessonPlans = () => {
+		const subjects = ["Mathematics", "English", "Science", "History", "Geography", "Physics", "Chemistry", "Biology"];
+		const classes = ["Grade 6", "Grade 7", "Grade 8", "Grade 9", "Grade 10", "Grade 11", "Grade 12"];
+		const statuses = ["draft", "pending", "approved", "rejected"]; // Updated status names
+		const teachers = [
+			{ name: "John Smith", id: "teacher1" },
+			{ name: "Jane Doe", id: "teacher2" },
+			{ name: "Mike Johnson", id: "teacher3" },
+			{ name: "Sarah Wilson", id: "teacher4" },
+			{ name: "David Brown", id: "teacher5" },
+		];
+		const lessonPlans = [];
+
+		for (let i = 1; i <= 25; i++) {
+			const subject = subjects[Math.floor(Math.random() * subjects.length)];
+			const className = classes[Math.floor(Math.random() * classes.length)];
+			const status = statuses[Math.floor(Math.random() * statuses.length)];
+			const teacher = teachers[Math.floor(Math.random() * teachers.length)];
+			const dateCreated = new Date(Date.now() - Math.random() * 90 * 24 * 60 * 60 * 1000);
+			const lastModified = new Date(dateCreated.getTime() + Math.random() * 7 * 24 * 60 * 60 * 1000);
+
+			const plan = {
+				id: Date.now() + i,
+				title: `${subject} - ${className} Lesson ${i}`,
+				subject,
+				class: className,
+				duration: `${30 + Math.floor(Math.random() * 60)} minutes`,
+				objectives: [`Understand ${subject.toLowerCase()} fundamentals`, `Apply concepts to real-world problems`, "Develop critical thinking skills", "Engage in collaborative learning"],
+				materials: [`${subject} textbook`, "Whiteboard and markers", "Practice worksheets", "Online resources", "Calculator (if needed)"],
+				status,
+				dateCreated: dateCreated.toISOString().split("T")[0],
+				lastModified: lastModified.toISOString().split("T")[0],
+				teacherId: teacher.id,
+				teacher: teacher.name,
+			};
+
+			// Add approval workflow fields based on status
+			if (status === "pending") {
+				plan.submittedDate = new Date(lastModified.getTime() + Math.random() * 2 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+			} else if (status === "approved") {
+				plan.submittedDate = new Date(lastModified.getTime() + Math.random() * 2 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+				plan.approvedDate = new Date(lastModified.getTime() + Math.random() * 5 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+				plan.approvedBy = "Admin User";
+			} else if (status === "rejected") {
+				plan.submittedDate = new Date(lastModified.getTime() + Math.random() * 2 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+				plan.rejectedDate = new Date(lastModified.getTime() + Math.random() * 5 * 24 * 60 * 60 * 1000).toISOString().split("T")[0];
+				plan.rejectionReason = "Needs more detailed objectives and assessment criteria.";
+			}
+
+			lessonPlans.push(plan);
+		}
+
+		return lessonPlans;
+	};
+
+	// Enhanced filter logic
 	const filteredLessonPlans = lessonPlans.filter((plan) => {
-		const matchesSearch = plan.title.toLowerCase().includes(searchTerm.toLowerCase()) || plan.subject.toLowerCase().includes(searchTerm.toLowerCase()) || plan.teacher.toLowerCase().includes(searchTerm.toLowerCase());
+		const matchesSearch = plan.title.toLowerCase().includes(searchTerm.toLowerCase()) || plan.subject.toLowerCase().includes(searchTerm.toLowerCase()) || plan.teacher.toLowerCase().includes(searchTerm.toLowerCase()) || plan.class.toLowerCase().includes(searchTerm.toLowerCase());
+
 		const matchesSubject = filterSubject === "all" || plan.subject === filterSubject;
 		const matchesClass = filterClass === "all" || plan.class === filterClass;
+		const matchesStatus = filterStatus === "all" || plan.status === filterStatus;
 
-		return matchesSearch && matchesSubject && matchesClass;
+		return matchesSearch && matchesSubject && matchesClass && matchesStatus;
 	});
 
-	// Get unique subjects and classes for filters
-	const subjects = [...new Set(lessonPlans.map((plan) => plan.subject))];
-	const classes = [...new Set(lessonPlans.map((plan) => plan.class))];
+	// Get unique values for filters
+	const subjects = [...new Set(lessonPlans.map((plan) => plan.subject))].sort();
+	const classes = [...new Set(lessonPlans.map((plan) => plan.class))].sort();
+	const statuses = [...new Set(lessonPlans.map((plan) => plan.status))];
 
-	if (!hasPermission) {
+	// Enhanced analytics calculations
+	const analytics = {
+		total: filteredLessonPlans.length,
+		subjects: new Set(lessonPlans.map((plan) => plan.subject)).size,
+		recent: lessonPlans.filter((plan) => new Date(plan.dateCreated) >= new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)).length,
+		pendingApproval: lessonPlans.filter((plan) => plan.status === "pending").length, // Changed from "submitted"
+		draft: lessonPlans.filter((plan) => plan.status === "draft").length,
+		approved: lessonPlans.filter((plan) => plan.status === "approved").length, // Changed from "published"
+	};
+
+	// Status badge helper
+	const getStatusBadge = (status) => {
+		const badges = {
+			draft: "bg-gray-100 text-gray-800",
+			pending: "bg-blue-100 text-blue-800", // Changed from "submitted"
+			approved: "bg-green-100 text-green-800", // Changed from "published"
+			rejected: "bg-red-100 text-red-800",
+		};
+		return badges[status] || "bg-gray-100 text-gray-800";
+	};
+
+	// Permission checks for actions
+	const canEdit = (plan) => {
+		if (isAdmin) return true;
+		if (isTeacher) {
+			return (plan.teacherId === user.id || plan.teacher === user.name) && ["draft", "rejected"].includes(plan.status);
+		}
+		return false;
+	};
+
+	const canDelete = (plan) => {
+		if (isAdmin) return true;
+		if (isTeacher) {
+			return (plan.teacherId === user.id || plan.teacher === user.name) && plan.status === "draft";
+		}
+		return false;
+	};
+
+	if (!user) {
 		return (
 			<div className="min-h-screen bg-gray-50 flex items-center justify-center">
 				<div className="text-center">
@@ -199,17 +211,20 @@ function LessonPlansContent() {
 						<div className="flex items-center justify-between">
 							<div>
 								<h1 className="text-3xl font-bold text-gray-900">Lesson Plans</h1>
-								<p className="text-gray-600 mt-1">{user.role === "admin" ? "Manage and oversee all lesson plans" : "View and edit your lesson plans"}</p>
+								<p className="text-gray-600 mt-1">{isAdmin ? "Manage and oversee all lesson plans and approvals" : "Create, edit and submit your lesson plans for approval"}</p>
 							</div>
 							{canAddLessonPlans && (
-								<Link href="/lesson-plans/add" className="bg-[#037764] text-white px-6 py-2 rounded-lg hover:bg-[#025a4a] transition-colors font-medium">
-									Add New Lesson Plan
-								</Link>
+								<div className="flex items-center space-x-3">
+									{isAdmin && analytics.pendingApproval > 0 && <span className="bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm font-medium">{analytics.pendingApproval} pending approval</span>}
+									<Link href="/lesson-plans/add" className="bg-[#037764] text-white px-6 py-2 rounded-lg hover:bg-[#025a4a] transition-colors font-medium">
+										Add New Lesson Plan
+									</Link>
+								</div>
 							)}
 						</div>
 					</div>
 
-					{/* Analytics Cards */}
+					{/* Enhanced Analytics Cards */}
 					<div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
 						<div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6">
 							<div className="flex items-center">
@@ -222,8 +237,8 @@ function LessonPlansContent() {
 								</div>
 								<div className="ml-5 w-0 flex-1">
 									<dl>
-										<dt className="text-sm font-medium text-gray-500 truncate">{user.role === "admin" ? "Total Lesson Plans" : "My Lesson Plans"}</dt>
-										<dd className="text-lg font-medium text-gray-900">{analytics.teacherLessonPlans}</dd>
+										<dt className="text-sm font-medium text-gray-500 truncate">{isAdmin ? "Total Lesson Plans" : "My Lesson Plans"}</dt>
+										<dd className="text-lg font-medium text-gray-900">{analytics.total}</dd>
 									</dl>
 								</div>
 							</div>
@@ -234,14 +249,14 @@ function LessonPlansContent() {
 								<div className="flex-shrink-0">
 									<div className="flex items-center justify-center h-8 w-8 rounded-md bg-green-600 text-white">
 										<svg className="h-5 w-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 6.253v13m0-13C10.832 5.477 9.246 5 7.5 5S4.168 5.477 3 6.253v13C4.168 18.477 5.754 18 7.5 18s3.332.477 4.5 1.253m0-13C13.168 5.477 14.754 5 16.5 5c1.746 0 3.332.477 4.5 1.253v13C19.832 18.477 18.246 18 16.5 18c-1.746 0-3.332.477-4.5 1.253" />
+											<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
 										</svg>
 									</div>
 								</div>
 								<div className="ml-5 w-0 flex-1">
 									<dl>
-										<dt className="text-sm font-medium text-gray-500 truncate">Subjects Covered</dt>
-										<dd className="text-lg font-medium text-gray-900">{Object.keys(analytics.subjectDistribution).length}</dd>
+										<dt className="text-sm font-medium text-gray-500 truncate">Approved Plans</dt>
+										<dd className="text-lg font-medium text-gray-900">{analytics.approved}</dd>
 									</dl>
 								</div>
 							</div>
@@ -259,7 +274,7 @@ function LessonPlansContent() {
 								<div className="ml-5 w-0 flex-1">
 									<dl>
 										<dt className="text-sm font-medium text-gray-500 truncate">Recent Plans</dt>
-										<dd className="text-lg font-medium text-gray-900">{analytics.recentLessonPlans}</dd>
+										<dd className="text-lg font-medium text-gray-900">{analytics.recent}</dd>
 									</dl>
 								</div>
 							</div>
@@ -276,27 +291,29 @@ function LessonPlansContent() {
 								</div>
 								<div className="ml-5 w-0 flex-1">
 									<dl>
-										<dt className="text-sm font-medium text-gray-500 truncate">Pending Review</dt>
-										<dd className="text-lg font-medium text-gray-900">{analytics.upcomingDeadlines}</dd>
+										<dt className="text-sm font-medium text-gray-500 truncate">{isAdmin ? "Pending Approval" : "Draft Plans"}</dt>
+										<dd className="text-lg font-medium text-gray-900">{isAdmin ? analytics.pendingApproval : analytics.draft}</dd>
 									</dl>
 								</div>
 							</div>
 						</div>
 					</div>
 
-					{/* Filters and Search */}
+					{/* Enhanced Filters and Search */}
 					<div className="bg-white rounded-xl shadow-sm border border-gray-200 p-6 mb-6">
-						<div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+						<div className="grid grid-cols-1 md:grid-cols-5 gap-4">
 							<div>
 								<label className="block text-sm font-medium text-gray-700 mb-1">Search</label>
-								<input type="text" placeholder="Search lesson plans..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#037764] focus:border-transparent" />
+								<input type="text" placeholder="Search lesson plans..." value={searchTerm} onChange={(e) => setSearchTerm(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#037764] focus:border-transparent text-gray-900" />
 							</div>
 							<div>
 								<label className="block text-sm font-medium text-gray-700 mb-1">Subject</label>
-								<select value={filterSubject} onChange={(e) => setFilterSubject(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#037764] focus:border-transparent">
-									<option value="all">All Subjects</option>
+								<select value={filterSubject} onChange={(e) => setFilterSubject(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#037764] focus:border-transparent text-gray-900">
+									<option value="all" className="text-gray-900">
+										All Subjects
+									</option>
 									{subjects.map((subject) => (
-										<option key={subject} value={subject}>
+										<option key={subject} value={subject} className="text-gray-900">
 											{subject}
 										</option>
 									))}
@@ -304,11 +321,26 @@ function LessonPlansContent() {
 							</div>
 							<div>
 								<label className="block text-sm font-medium text-gray-700 mb-1">Class</label>
-								<select value={filterClass} onChange={(e) => setFilterClass(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#037764] focus:border-transparent">
-									<option value="all">All Classes</option>
+								<select value={filterClass} onChange={(e) => setFilterClass(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#037764] focus:border-transparent text-gray-900">
+									<option value="all" className="text-gray-900">
+										All Classes
+									</option>
 									{classes.map((className) => (
-										<option key={className} value={className}>
+										<option key={className} value={className} className="text-gray-900">
 											{className}
+										</option>
+									))}
+								</select>
+							</div>
+							<div>
+								<label className="block text-sm font-medium text-gray-700 mb-1">Status</label>
+								<select value={filterStatus} onChange={(e) => setFilterStatus(e.target.value)} className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#037764] focus:border-transparent text-gray-900">
+									<option value="all" className="text-gray-900">
+										All Statuses
+									</option>
+									{statuses.map((status) => (
+										<option key={status} value={status} className="text-gray-900">
+											{status.charAt(0).toUpperCase() + status.slice(1)}
 										</option>
 									))}
 								</select>
@@ -319,6 +351,7 @@ function LessonPlansContent() {
 										setSearchTerm("");
 										setFilterSubject("all");
 										setFilterClass("all");
+										setFilterStatus("all");
 									}}
 									className="w-full px-4 py-2 text-gray-600 border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors"
 								>
@@ -328,11 +361,11 @@ function LessonPlansContent() {
 						</div>
 					</div>
 
-					{/* Lesson Plans List */}
+					{/* Enhanced Lesson Plans List */}
 					<div className="bg-white rounded-xl shadow-sm border border-gray-200 overflow-hidden">
 						<div className="px-6 py-4 border-b border-gray-200">
 							<h3 className="text-lg font-semibold text-gray-900">
-								{user.role === "admin" ? "All Lesson Plans" : "Your Lesson Plans"} ({filteredLessonPlans.length})
+								{isAdmin ? "All Lesson Plans" : "Your Lesson Plans"} ({filteredLessonPlans.length})
 							</h3>
 						</div>
 
@@ -342,7 +375,7 @@ function LessonPlansContent() {
 									<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="1" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
 								</svg>
 								<h3 className="mt-2 text-sm font-medium text-gray-900">No lesson plans found</h3>
-								<p className="mt-1 text-sm text-gray-500">{searchTerm || filterSubject !== "all" || filterClass !== "all" ? "Try adjusting your search criteria." : user.role === "admin" ? "Get started by creating your first lesson plan." : "No lesson plans have been assigned to you yet."}</p>
+								<p className="mt-1 text-sm text-gray-500">{searchTerm || filterSubject !== "all" || filterClass !== "all" || filterStatus !== "all" ? "Try adjusting your search criteria." : isAdmin ? "Get started by creating your first lesson plan or wait for teacher submissions." : "Get started by creating your first lesson plan."}</p>
 								{canAddLessonPlans && (
 									<div className="mt-6">
 										<Link href="/lesson-plans/add" className="inline-flex items-center px-4 py-2 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-[#037764] hover:bg-[#025a4a] focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-[#037764]">
@@ -359,7 +392,7 @@ function LessonPlansContent() {
 											<div className="flex-1">
 												<div className="flex items-center space-x-3">
 													<h4 className="text-lg font-medium text-gray-900">{plan.title}</h4>
-													<span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${plan.status === "published" ? "bg-green-100 text-green-800" : "bg-yellow-100 text-yellow-800"}`}>{plan.status === "published" ? "Published" : "Draft"}</span>
+													<span className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${getStatusBadge(plan.status)}`}>{plan.status.charAt(0).toUpperCase() + plan.status.slice(1)}</span>
 												</div>
 												<div className="mt-1 flex items-center space-x-4 text-sm text-gray-500">
 													<span>{plan.subject}</span>
@@ -367,7 +400,7 @@ function LessonPlansContent() {
 													<span>{plan.class}</span>
 													<span>•</span>
 													<span>{plan.duration}</span>
-													{user.role === "admin" && (
+													{isAdmin && (
 														<>
 															<span>•</span>
 															<span>By {plan.teacher}</span>
@@ -377,6 +410,8 @@ function LessonPlansContent() {
 												<div className="mt-2 flex items-center space-x-4 text-xs text-gray-400">
 													<span>Created: {new Date(plan.dateCreated).toLocaleDateString()}</span>
 													<span>Modified: {new Date(plan.lastModified).toLocaleDateString()}</span>
+													{plan.submittedDate && <span>Submitted: {new Date(plan.submittedDate).toLocaleDateString()}</span>}
+													{plan.approvedDate && <span>Approved: {new Date(plan.approvedDate).toLocaleDateString()}</span>}
 												</div>
 											</div>
 											<div className="flex items-center space-x-2">
@@ -386,12 +421,14 @@ function LessonPlansContent() {
 														<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z" />
 													</svg>
 												</Link>
-												<Link href={`/lesson-plans/edit?plan=${plan.id}`} className="text-blue-600 hover:text-blue-800 transition-colors p-2" title="Edit Lesson Plan">
-													<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-														<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
-													</svg>
-												</Link>
-												{canAddLessonPlans && (
+												{canEdit(plan) && (
+													<Link href={`/lesson-plans/edit?plan=${plan.id}`} className="text-blue-600 hover:text-blue-800 transition-colors p-2" title="Edit Lesson Plan">
+														<svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+															<path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z" />
+														</svg>
+													</Link>
+												)}
+												{canDelete(plan) && (
 													<button
 														onClick={() => {
 															if (window.confirm("Are you sure you want to delete this lesson plan?")) {
